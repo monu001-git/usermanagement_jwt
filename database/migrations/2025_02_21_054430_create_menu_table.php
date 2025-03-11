@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('slug',255)->nullable();
             $table->integer('content_id')->nullable()->default(1); 
             $table->unsignedBigInteger('parent_id')->nullable(); 
-            $table->enum('menu_place', ['header', 'footer', 'both'])->nullable()->default(null);
+            $table->enum('menu_place', ['header','link'])->nullable()->default(null);
             $table->enum('link_type', ['internal', 'external'])->nullable()->default(null);
             $table->integer('order')->nullable()->default(0);
             $table->boolean('status')->default(0)->nullable();

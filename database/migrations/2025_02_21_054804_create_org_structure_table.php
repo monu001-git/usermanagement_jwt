@@ -39,7 +39,10 @@ return new class extends Migration
             $table->string('facebook_title', 255)->nullable();
             $table->string('youtube', 255)->nullable();
             $table->string('youtube_title', 255)->nullable();
-          
+
+         //basic
+            $table->string('map',550)->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

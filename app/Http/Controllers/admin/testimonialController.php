@@ -4,21 +4,23 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\notice_board;
+use App\Models\testimonial;
+use DB;
+use Hash;
 use Illuminate\Support\Facades\Validator;
-class noticeBoardController extends Controller
+use Str;
+
+class testimonialController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $noticeBoard = notice_board::orderBy('id','desc')->get();
+
+            $testimonial = testimonial::orderBy('id','asc')->get();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
-                'data' => $noticeBoard
+                'data' => $testimonial
             ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
@@ -42,15 +44,13 @@ class noticeBoardController extends Controller
         }
     }
 
- 
+  
     public function store(Request $request)
     {
         try {
 
             $validator = Validator::make($request->all(), [
-                //'title' => 'required|unique:notice_boards,title',
-                //'order' => 'required',
-               // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'title' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -60,30 +60,19 @@ class noticeBoardController extends Controller
                 ], 422);
             }
             
-
-            $data = new notice_board;
+            $data = new testimonial;
             $data->title = ucwords($request->title);
-            $data->date  = $request->date;
-            $data->url  = $request->url;
-            $data->link_type  = $request->link_type;
-            $data->user_name = 'admin';
-            $data->order  = $request->order;
+            $data->testimonial  = $request->testimonial;
+            $data->giver_name  = $request->giver_name;
+            $data->giver_role  = $request->giver_role;
             $data->status  = $request->status;
-
-            $path = public_path('uploads/noticeBoard/pdf');
-            if ($request->hasFile('pdf')) {
-                $file = $request->file('pdf');
-                $newname = time() . rand(10, 99) . '.' . $file->getClientOriginalExtension();
-                $file->move($path, $newname);
-                $data->pdf = $newname;
-            }
-
+            $data->order  = $request->order;
             $data->save();
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Data Save Successfully!',
-                ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Save Successfully!',
+            ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
@@ -105,31 +94,27 @@ class noticeBoardController extends Controller
             ], 500);
         }   
     }
-    
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function show($id)
     {
-        try{
+        try {
 
-            $noticeBoard = notice_board::find($id);
-            if($noticeBoard != null){
-
+            $testimonial = testimonial::find($id);
+            if($testimonial != null){
                 return response()->json([
                     'status' => 200,
-                    'success' => 'notice board Show Successfully',
-                    'data' => $noticeBoard
+                    'success', 'testimonial Show Successfully',
+                    'data' => $testimonial
                 ]);
-
             }else{
                 return response()->json([
                     'status' => 200,
                     'success', 'Record Not found',
                 ]);
             }
-
+           
+       
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
                 'status' => 500,
@@ -151,29 +136,84 @@ class noticeBoardController extends Controller
         }
     }
 
-
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function update(Request $request, $id)
     {
         try {
-        
-            $noticeBoard = notice_board::where('id',$id)->first();
-            if (!empty($noticeBoard)) {
-                notice_board::find($id)->delete();
-            } else {
+           
+            $testimonial = testimonial::where('id',$id)->first();
+
+            if (!empty($testimonial)) {
+
+                $validator = Validator::make($request->all(), [
+                   'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'errors' => $validator->errors(),
+                        'message' => 'Validation failed',
+                    ], 422);
+                }           
+
+                $data = testimonial::find($id);
+                $data->title = ucwords($request->title);
+                $data->testimonial  = $request->testimonial;
+                $data->giver_name  = $request->giver_name;
+                $data->giver_role  = $request->giver_role;
+                $data->status  = $request->status;
+                $data->order  = $request->order;
+                $data->save();
+            
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Data Update Successfully!',
+                
+                ]);
+
+            }else{
 
                 return response()->json([
                     'message' => 'You are trying to perform an unethical process. Your request is failed.',
                     'status' => false,
                 ], 400); 
+
+            }
+
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }    
+    }
+
+   
+    public function destroy($id)
+    {
+        try {
         
+            $testimonial = testimonial::where('id',$id)->first();
+            if (!empty($testimonial)) {
+                testimonial::find($id)->delete();
+            } else {
+               return response()->json([
+                'message' => 'You are trying to perform an unethical process. Your request is failed.',
+                'status' => false,
+               ], 400); 
             }
 
             return response()->json([

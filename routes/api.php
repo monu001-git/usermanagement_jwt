@@ -15,6 +15,7 @@ use App\Http\Controllers\admin\orgStructureController;
 use App\Http\Controllers\admin\commonController;
 use App\Http\Controllers\admin\masterController;
 use App\Http\Controllers\admin\noticeBoardController;
+use App\Http\Controllers\admin\testimonialController;
 use App\Http\Controllers\homeController;
 
 
@@ -30,6 +31,7 @@ use App\Http\Controllers\homeController;
         Route::resource('menus',menuController::class);
         Route::resource('orgs',orgStructureController::class);
         Route::resource('notice-boards',noticeBoardController::class);
+        Route::resource('testimonials',testimonialController::class);
 
           
         //master
@@ -52,5 +54,5 @@ Route::controller(homeController::class)->group(function () {
     Route::get('header-menu', 'headerMenu');
     Route::get('org-data', 'orgData');
     Route::get('notice-boardData', 'noticeBoard');
- 
+    Route::get('testimonial-Data', 'testimonialData');
 });

@@ -18,7 +18,6 @@ class orgStructureController extends Controller
         try {
 
             $org = org_structure::orderBy('id','asc')->get();
-
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -53,9 +52,9 @@ class orgStructureController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'order' => 'required',
-                'link_type' => 'required',
-                'menu_place' => 'required',
+               // 'order' => 'required',
+               // 'link_type' => 'required',
+               // 'menu_place' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -65,22 +64,20 @@ class orgStructureController extends Controller
                 ], 422);
             }
             
-            $data = new menu;
-            $data->name = ucwords($request->name);
-            $data->slug    = Str::slug($request->name, "-");
+            $data = new org_structure;
+            //seo
+            $data->meta_title = $request->meta_title;
+            $data->meta_description = $request->meta_description;
+            $data->meta_keyword = $request->meta_keyword;
+            $data->body_script = $request->body_script;
+            $data->head_script = $request->head_script;
 
-            if ($request->link_type === "0") {
-                $data->url  = $request->url;
-            } else {
-                $data->url  =  Str::slug($request->name, "-");
-            }
+            $data->name = $request->name;
+            $data->email = $request->email;
+            $data->phone = $request->phone;
 
-            $data->parent_id = $request->parent_id;
-            $data->order  = $request->order;
-            $data->link_type = $request->link_type;
-            $data->menu_place  = $request->menu_place;
-            $data->status  = $request->status;
-            $data->content_id = $request->content_id;
+
+
             $data->save();
 
             return response()->json([
@@ -114,12 +111,12 @@ class orgStructureController extends Controller
     {
         try {
 
-            $menu = menu::find($id);
+            $org = org_structure::find($id);
             if($menu != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'Menu Show Successfully',
-                    'data' => $menu
+                    'success', 'Org Show Successfully',
+                    'data' => $org
                 ]);
             }else{
                 return response()->json([
@@ -154,15 +151,12 @@ class orgStructureController extends Controller
     {
         try {
            
-            $menu = menu::where('id',$id)->first();
+            $org = org_structure::where('id',$id)->first();
 
-            if (!empty($menu)) {
+            if (!empty($org)) {
 
                 $validator = Validator::make($request->all(), [
                    // 'name' => 'required',
-                   // 'order' => 'required',
-                   // 'link_type' => 'required',
-                   // 'menu_place' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -173,21 +167,17 @@ class orgStructureController extends Controller
                 }           
 
                 $data = menu::find($id);
-                $data->name = ucwords($request->name);
-                $data->slug    = Str::slug($request->name, "-");
-    
-                if ($request->link_type === "0") {
-                    $data->url  = $request->url;
-                } else {
-                    $data->url  =  Str::slug($request->name, "-");
-                }
-                $data->content_id  = $request->content_id;
-                $data->parent_id = $request->parent_id;
-                $data->order  = $request->order;
-                $data->link_type = $request->link_type;
-                $data->status  = $request->status;
-                $data->menu_place  = $request->menu_place;
-            
+                $data->meta_title = $request->meta_title;
+                $data->meta_description = $request->meta_description;
+                $data->meta_keyword = $request->meta_keyword;
+                $data->body_script = $request->body_script;
+                $data->head_script = $request->head_script;
+      
+                $data->name = $request->name;
+                $data->email = $request->email;
+                $data->phone = $request->phone;
+
+        
                 $data->save();
 
                 return response()->json([

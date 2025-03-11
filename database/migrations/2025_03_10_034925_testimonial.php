@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notice_boards', function (Blueprint $table) {
+        Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
             $table->string('title',255)->nullable();
-            $table->date('date',255)->nullable();
-            $table->string('pdf', 255)->nullable();
-            $table->string('url',255)->nullable()->default(null);
-            $table->enum('link_type', ['internal', 'external'])->nullable()->default(null);
+            $table->text('testimonial')->nullable();
+            $table->string('giver_name',255)->nullable();  
+            $table->string('giver_role',255)->nullable();
             $table->integer('order')->nullable()->default(0);
             $table->boolean('status')->default(0)->nullable();
             $table->timestamps();
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notice_boards');
+        Schema::dropIfExists('testimonials');
     }
 };

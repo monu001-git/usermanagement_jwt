@@ -22,9 +22,7 @@ class userController extends Controller
     public function index(Request $request)
     {
         try {
-         
-            $user = User::orderBy('id', 'asc')->get();
-            
+            $user = User::orderBy('id','desc')->get();    
             return response()->json([
                 'status' => 200,
                 'success', 'User deleted successfully',
@@ -145,50 +143,6 @@ class userController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        // try {
-
-            $user = User::find($id);
-            $roles = Role::pluck('name', 'name')->all();
-            $userRole = $user->roles->pluck('name', 'name')->all();
-
-           
-            return response()->json([
-                'status' => 200,
-                'success', 'User deleted successfully',
-                'data' => $user,
-                'roles' => $roles,
-                'userRole' => $userRole
-            ]);
-
-        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'Database error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An error occurred while fetching the data.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An unexpected error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // }
     }
 
     
