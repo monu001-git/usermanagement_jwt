@@ -64,19 +64,37 @@ class noticeBoardController extends Controller
             $data = new notice_board;
             $data->title = ucwords($request->title);
             $data->date  = $request->date;
-            $data->url  = $request->url;
+            $data->publiser  = 'admin';
             $data->link_type  = $request->link_type;
-            $data->user_name = 'admin';
             $data->order  = $request->order;
             $data->status  = $request->status;
 
-            $path = public_path('uploads/noticeBoard/pdf');
-            if ($request->hasFile('pdf')) {
-                $file = $request->file('pdf');
-                $newname = time() . rand(10, 99) . '.' . $file->getClientOriginalExtension();
-                $file->move($path, $newname);
+            $path = public_path('uploads');
+            if ($request->has('pdf')) {
+               $base64Image = $request->input('pdf');
+               if($base64Image != null){
+    
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $image = base64_decode($imageData);
+        
+                $finfo = finfo_open();
+                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                finfo_close($finfo);
+        
+                $extension = '';
+                if ($mimeType == 'application/pdf') {
+                    $extension = 'pdf';
+                } else {
+                    return response()->json(['error' => 'Unsupported image format'], 400);
+                }
+                $newname = time() . rand(10, 99) . '.' . $extension;
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                file_put_contents($path . '/' . $newname, $image);
                 $data->pdf = $newname;
-            }
+               }
+           }
 
             $data->save();
 
@@ -154,7 +172,83 @@ class noticeBoardController extends Controller
 
     public function update(Request $request, string $id)
     {
-        //
+        try {
+        $validator = Validator::make($request->all(), [
+            //'title' => 'required|unique:notice_boards,title',
+            //'order' => 'required',
+           // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Validation failed',
+            ], 422);
+        }
+        
+
+        $data = notice_board:: find($id);
+        $data->title = ucwords($request->title);
+        $data->date  = $request->date;
+        $data->publiser  = 'admin';
+        $data->link_type  = $request->link_type;
+        $data->order  = $request->order;
+        $data->status  = $request->status;
+
+              
+        $path = public_path('uploads');
+        if ($request->has('pdf')) {
+           $base64Image = $request->input('pdf');
+           if($base64Image != null){
+
+            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+            $image = base64_decode($imageData);
+    
+            $finfo = finfo_open();
+            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+            finfo_close($finfo);
+    
+            $extension = '';
+            if ($mimeType == 'application/pdf') {
+                $extension = 'pdf';
+            } else {
+                return response()->json(['error' => 'Unsupported image format'], 400);
+            }
+            $newname = time() . rand(10, 99) . '.' . $extension;
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+            file_put_contents($path . '/' . $newname, $image);
+            $data->pdf = $newname;
+           }
+       }
+
+        $data->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Save Successfully!',
+            ]);
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title',255)->nullable();
             $table->date('date',255)->nullable();
             $table->string('pdf', 255)->nullable();
-            $table->string('url',255)->nullable()->default(null);
+            $table->string('publiser',255)->nullable()->default(null);
             $table->enum('link_type', ['internal', 'external'])->nullable()->default(null);
             $table->integer('order')->nullable()->default(0);
             $table->boolean('status')->default(0)->nullable();
