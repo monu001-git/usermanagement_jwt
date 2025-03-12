@@ -48,8 +48,9 @@ class orgStructureController extends Controller
   
     public function store(Request $request)
     {
-        try {
-
+       
+        // try {
+           
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                // 'order' => 'required',
@@ -65,19 +66,149 @@ class orgStructureController extends Controller
             }
             
             $data = new org_structure;
-            //seo
             $data->meta_title = $request->meta_title;
             $data->meta_description = $request->meta_description;
             $data->meta_keyword = $request->meta_keyword;
             $data->body_script = $request->body_script;
             $data->head_script = $request->head_script;
-
             $data->name = $request->name;
             $data->email = $request->email;
             $data->phone = $request->phone;
 
+            $data->payFee = $request->payFee;
+            $data->admissionOpenLink = $request->admissionOpenLink;
+            $data->video_url = $request->video_url;
+            $data->map = $request->map;
 
 
+            $path = public_path('uploads');
+            if ($request->has('header_logo')) {
+               $base64Image = $request->input('header_logo');
+               if($base64Image != null){
+
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $image = base64_decode($imageData);
+        
+                $finfo = finfo_open();
+                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                finfo_close($finfo);
+        
+                $extension = '';
+                if ($mimeType == 'image/jpeg') {
+                    $extension = 'jpg';
+                } elseif ($mimeType == 'image/png') {
+                    $extension = 'png';
+                } elseif ($mimeType == 'image/gif') {
+                    $extension = 'gif';
+                } else {
+                    return response()->json(['error' => 'Unsupported image format'], 400);
+                }
+                $newname = time() . rand(10, 99) . '.' . $extension;
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                file_put_contents($path . '/' . $newname, $image);
+                $data->header_logo = $newname;
+               }
+           }
+
+           $path = public_path('uploads');
+           if ($request->has('menu_logo')) {
+              $base64Image = $request->input('menu_logo');
+              if($base64Image != null){
+
+               $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+               $image = base64_decode($imageData);
+       
+               $finfo = finfo_open();
+               $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+               finfo_close($finfo);
+       
+               $extension = '';
+               if ($mimeType == 'image/jpeg') {
+                   $extension = 'jpg';
+               } elseif ($mimeType == 'image/png') {
+                   $extension = 'png';
+               } elseif ($mimeType == 'image/gif') {
+                   $extension = 'gif';
+               } else {
+                   return response()->json(['error' => 'Unsupported image format'], 400);
+               }
+               $newname = time() . rand(10, 99) . '.' . $extension;
+               if (!file_exists($path)) {
+                   mkdir($path, 0777, true);
+               }
+               file_put_contents($path . '/' . $newname, $image);
+               $data->menu_logo = $newname;
+              }
+          }
+
+
+          $path = public_path('uploads');
+          if ($request->has('footer_logo')) {
+             $base64Image = $request->input('footer_logo');
+             if($base64Image != null){
+
+              $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+              $image = base64_decode($imageData);
+      
+              $finfo = finfo_open();
+              $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+              finfo_close($finfo);
+      
+              $extension = '';
+              if ($mimeType == 'image/jpeg') {
+                  $extension = 'jpg';
+              } elseif ($mimeType == 'image/png') {
+                  $extension = 'png';
+              } elseif ($mimeType == 'image/gif') {
+                  $extension = 'gif';
+              } else {
+                  return response()->json(['error' => 'Unsupported image format'], 400);
+              }
+              $newname = time() . rand(10, 99) . '.' . $extension;
+              if (!file_exists($path)) {
+                  mkdir($path, 0777, true);
+              }
+              file_put_contents($path . '/' . $newname, $image);
+              $data->footer_logo = $newname;
+             }
+         }
+
+         
+         $path = public_path('uploads');
+         if ($request->has('favicon')) {
+            $base64Image = $request->input('favicon');
+            if($base64Image != null){
+
+             $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+             $image = base64_decode($imageData);
+     
+             $finfo = finfo_open();
+             $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+             finfo_close($finfo);
+     
+             $extension = '';
+             if ($mimeType == 'image/jpeg') {
+                 $extension = 'jpg';
+             } elseif ($mimeType == 'image/png') {
+                 $extension = 'png';
+             } elseif ($mimeType == 'image/gif') {
+                 $extension = 'gif';
+             } else {
+                 return response()->json(['error' => 'Unsupported image format'], 400);
+             }
+             $newname = time() . rand(10, 99) . '.' . $extension;
+             if (!file_exists($path)) {
+                 mkdir($path, 0777, true);
+             }
+             file_put_contents($path . '/' . $newname, $image);
+             $data->favicon = $newname;
+            }
+        }
+
+
+            
             $data->save();
 
             return response()->json([
@@ -85,25 +216,25 @@ class orgStructureController extends Controller
                 'message' => 'Data Save Successfully!',
             ]);
 
-        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'Database error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An error occurred while fetching the data.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An unexpected error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        }   
+        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'Database error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An error occurred while fetching the data.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An unexpected error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // }   
     }
 
 
@@ -112,7 +243,7 @@ class orgStructureController extends Controller
         try {
 
             $org = org_structure::find($id);
-            if($menu != null){
+            if($org != null){
                 return response()->json([
                     'status' => 200,
                     'success', 'Org Show Successfully',
@@ -149,7 +280,7 @@ class orgStructureController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
+        // try {
            
             $org = org_structure::where('id',$id)->first();
 
@@ -159,25 +290,156 @@ class orgStructureController extends Controller
                    // 'name' => 'required',
                 ]);
 
-                if ($validator->fails()) {
-                    return response()->json([
-                        'errors' => $validator->errors(),
-                        'message' => 'Validation failed',
-                    ], 422);
-                }           
+                // if ($validator->fails()) {
+                //     return response()->json([
+                //         'errors' => $validator->errors(),
+                //         'message' => 'Validation failed',
+                //     ], 422);
+                // }           
 
-                $data = menu::find($id);
+                $data = org_structure::find($id);
                 $data->meta_title = $request->meta_title;
                 $data->meta_description = $request->meta_description;
                 $data->meta_keyword = $request->meta_keyword;
                 $data->body_script = $request->body_script;
                 $data->head_script = $request->head_script;
-      
                 $data->name = $request->name;
                 $data->email = $request->email;
                 $data->phone = $request->phone;
 
-        
+                $data->payFee = $request->payFee;
+                $data->admissionOpenLink = $request->admissionOpenLink;
+                $data->video_url = $request->video_url;
+                $data->map = $request->map;
+    
+    
+                $path = public_path('uploads');
+                if ($request->has('header_logo')) {
+                   $base64Image = $request->input('header_logo');
+                   if($base64Image != null){
+    
+                    $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                    $image = base64_decode($imageData);
+            
+                    $finfo = finfo_open();
+                    $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                    finfo_close($finfo);
+            
+                    $extension = '';
+                    if ($mimeType == 'image/jpeg') {
+                        $extension = 'jpg';
+                    } elseif ($mimeType == 'image/png') {
+                        $extension = 'png';
+                    } elseif ($mimeType == 'image/gif') {
+                        $extension = 'gif';
+                    } else {
+                        return response()->json(['error' => 'Unsupported image format'], 400);
+                    }
+                    $newname = time() . rand(10, 99) . '.' . $extension;
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    file_put_contents($path . '/' . $newname, $image);
+                    $data->header_logo = $newname;
+                   }
+               }
+    
+               $path = public_path('uploads');
+               if ($request->has('menu_logo')) {
+                  $base64Image = $request->input('menu_logo');
+                  if($base64Image != null){
+    
+                   $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                   $image = base64_decode($imageData);
+           
+                   $finfo = finfo_open();
+                   $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                   finfo_close($finfo);
+           
+                   $extension = '';
+                   if ($mimeType == 'image/jpeg') {
+                       $extension = 'jpg';
+                   } elseif ($mimeType == 'image/png') {
+                       $extension = 'png';
+                   } elseif ($mimeType == 'image/gif') {
+                       $extension = 'gif';
+                   } else {
+                       return response()->json(['error' => 'Unsupported image format'], 400);
+                   }
+                   $newname = time() . rand(10, 99) . '.' . $extension;
+                   if (!file_exists($path)) {
+                       mkdir($path, 0777, true);
+                   }
+                   file_put_contents($path . '/' . $newname, $image);
+                   $data->menu_logo = $newname;
+                  }
+              }
+    
+    
+              $path = public_path('uploads');
+              if ($request->has('footer_logo')) {
+                 $base64Image = $request->input('footer_logo');
+                 if($base64Image != null){
+    
+                  $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                  $image = base64_decode($imageData);
+          
+                  $finfo = finfo_open();
+                  $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                  finfo_close($finfo);
+          
+                  $extension = '';
+                  if ($mimeType == 'image/jpeg') {
+                      $extension = 'jpg';
+                  } elseif ($mimeType == 'image/png') {
+                      $extension = 'png';
+                  } elseif ($mimeType == 'image/gif') {
+                      $extension = 'gif';
+                  } else {
+                      return response()->json(['error' => 'Unsupported image format'], 400);
+                  }
+                  $newname = time() . rand(10, 99) . '.' . $extension;
+                  if (!file_exists($path)) {
+                      mkdir($path, 0777, true);
+                  }
+                  file_put_contents($path . '/' . $newname, $image);
+                  $data->footer_logo = $newname;
+                 }
+             }
+    
+             
+             $path = public_path('uploads');
+             if ($request->has('favicon')) {
+                $base64Image = $request->input('favicon');
+                if($base64Image != null){
+    
+                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                 $image = base64_decode($imageData);
+         
+                 $finfo = finfo_open();
+                 $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                 finfo_close($finfo);
+         
+                 $extension = '';
+                 if ($mimeType == 'image/jpeg') {
+                     $extension = 'jpg';
+                 } elseif ($mimeType == 'image/png') {
+                     $extension = 'png';
+                 } elseif ($mimeType == 'image/gif') {
+                     $extension = 'gif';
+                 } else {
+                     return response()->json(['error' => 'Unsupported image format'], 400);
+                 }
+                 $newname = time() . rand(10, 99) . '.' . $extension;
+                 if (!file_exists($path)) {
+                     mkdir($path, 0777, true);
+                 }
+                 file_put_contents($path . '/' . $newname, $image);
+                 $data->favicon = $newname;
+                }
+            }
+    
+               
                 $data->save();
 
                 return response()->json([
@@ -196,32 +458,31 @@ class orgStructureController extends Controller
             }
 
 
-        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'Database error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An error occurred while fetching the data.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An unexpected error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        }    
+        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'Database error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An error occurred while fetching the data.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An unexpected error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // }    
     }
 
    
     public function destroy($id)
     {
         try {
-        
             $menu = org_structure::where('id',$id)->first();
             if (!empty($menu)) {
                 org_structure::find($id)->delete();

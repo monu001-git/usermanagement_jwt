@@ -117,8 +117,10 @@ class homeController extends Controller
          
         try{
 
-            $noticeBoard = DB::table('notice_boards')->where('status', 1)->orderBy('order','desc')->get();
-           
+            $noticeBoardadfaddsf = DB::table('notice_boards')->where('status', 1)->orderBy('order','desc')->get();
+          
+            $noticeBoard = dEncrypt($noticeBoardadfaddsf);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
