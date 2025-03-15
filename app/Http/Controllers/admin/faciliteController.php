@@ -4,24 +4,24 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\student;
+use App\Models\facilite;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 
-class studentController extends Controller
+class faciliteController extends Controller
 {
     public function index(Request $request)
     {
         try {
 
-            $student = student::orderBy('id','asc')->get();
+            $facilite = facilite::orderBy('id','asc')->get();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
-                'data' => $student
+                'data' => $facilite
             ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
@@ -44,8 +44,6 @@ class studentController extends Controller
             ], 500);
         }
     }
-
-  
     public function store(Request $request)
     {
         try {
@@ -61,13 +59,13 @@ class studentController extends Controller
                 ], 422);
             }
             
-            $data = new student;
+            $data = new facilite;
             $data->name = $request->name;
             $data->status  = $request->status;
             $data->order  = $request->order;
 
       
-            $path = public_path('uploads/student');
+            $path = public_path('uploads/facilite');
             if ($request->has('image')) {
                $base64Image = $request->input('image');
                if($base64Image != null){
@@ -126,18 +124,16 @@ class studentController extends Controller
             ], 500);
         }   
     }
-
-
     public function show($id)
     {
         try {
 
-            $student = student::find($id);
-            if($student != null){
+            $facilite = facilite::find($id);
+            if($facilite != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'Student Show Successfully',
-                    'data' => $student
+                    'success', 'Facilite Show Successfully',
+                    'data' => $facilite
                 ]);
             }else{
                 return response()->json([
@@ -167,14 +163,13 @@ class studentController extends Controller
             ], 500);
         }
     }
-
     public function update(Request $request, $id)
     {
         try {
            
-            $student = student::where('id',$id)->first();
+            $facilite = facilite::where('id',$id)->first();
 
-            if (!empty($student)) {
+            if (!empty($facilite)) {
 
                 $validator = Validator::make($request->all(), [
                   'name' => 'required',
@@ -187,12 +182,12 @@ class studentController extends Controller
                     ], 422);
                 }           
 
-                $data = student::find($id);
+                $data = facilite::find($id);
                 $data->name = $request->name;
                 $data->status  = $request->status;
                 $data->order  = $request->order;
                       
-                $path = public_path('uploads/student');
+                $path = public_path('uploads/facilite');
                 if ($request->has('image')) {
                 $base64Image = $request->input('image');
                 if($base64Image != null){
@@ -261,15 +256,13 @@ class studentController extends Controller
             ], 500);
         }    
     }
-
-   
     public function destroy($id)
     {
         try {
         
-            $student = student::where('id',$id)->first();
-            if (!empty($student)) {
-                student::find($id)->delete();
+            $facilite = facilite::where('id',$id)->first();
+            if (!empty($facilite)) {
+                facilite::find($id)->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

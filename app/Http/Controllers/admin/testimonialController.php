@@ -67,6 +67,42 @@ class testimonialController extends Controller
             $data->giver_role  = $request->giver_role;
             $data->status  = $request->status;
             $data->order  = $request->order;
+
+
+
+            $path = public_path('uploads/testimonial');
+            if ($request->has('image')) {
+               $base64Image = $request->input('image');
+               if($base64Image != null){
+   
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $image = base64_decode($imageData);
+        
+                $finfo = finfo_open();
+                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                finfo_close($finfo);
+        
+                $extension = '';
+                if ($mimeType == 'image/jpeg') {
+                    $extension = 'jpg';
+                } elseif ($mimeType == 'image/png') {
+                    $extension = 'png';
+                } elseif ($mimeType == 'image/gif') {
+                    $extension = 'gif';
+                } else {
+                    return response()->json(['error' => 'Unsupported image format'], 400);
+                }
+                $newname = time() . rand(10, 99) . '.' . $extension;
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                file_put_contents($path . '/' . $newname, $image);
+                $data->image = $newname;
+               }
+           }
+
+
+
             $data->save();
 
             return response()->json([
@@ -145,7 +181,7 @@ class testimonialController extends Controller
             if (!empty($testimonial)) {
 
                 $validator = Validator::make($request->all(), [
-                   'name' => 'required',
+                  'title' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -162,6 +198,41 @@ class testimonialController extends Controller
                 $data->giver_role  = $request->giver_role;
                 $data->status  = $request->status;
                 $data->order  = $request->order;
+
+
+                $path = public_path('uploads/testimonial');
+                if ($request->has('image')) {
+                   $base64Image = $request->input('image');
+                   if($base64Image != null){
+       
+                    $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                    $image = base64_decode($imageData);
+            
+                    $finfo = finfo_open();
+                    $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                    finfo_close($finfo);
+            
+                    $extension = '';
+                    if ($mimeType == 'image/jpeg') {
+                        $extension = 'jpg';
+                    } elseif ($mimeType == 'image/png') {
+                        $extension = 'png';
+                    } elseif ($mimeType == 'image/gif') {
+                        $extension = 'gif';
+                    } else {
+                        return response()->json(['error' => 'Unsupported image format'], 400);
+                    }
+                    $newname = time() . rand(10, 99) . '.' . $extension;
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    file_put_contents($path . '/' . $newname, $image);
+                    $data->image = $newname;
+                   }
+               }
+    
+
+
                 $data->save();
             
                 return response()->json([

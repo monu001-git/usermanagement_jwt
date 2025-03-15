@@ -16,11 +16,15 @@ use App\Http\Controllers\admin\commonController;
 use App\Http\Controllers\admin\masterController;
 use App\Http\Controllers\admin\noticeBoardController;
 use App\Http\Controllers\admin\testimonialController;
+use App\Http\Controllers\admin\studentController;
+use App\Http\Controllers\admin\mediaGalleryController;
+use App\Http\Controllers\admin\faciliteController;
 use App\Http\Controllers\homeController;
 
 
     Route::post('/register', [authController::class, 'register']);
     Route::post('/login', [authController::class, 'login']);
+    Route::get('/logout', [authController::class, 'logout']);
    
     // Route::middleware('auth:api')->group( function () {
     //     Route::middleware([logMiddleware::class])->group(function () {
@@ -30,14 +34,18 @@ use App\Http\Controllers\homeController;
         Route::resource('banners',bannerController::class);
         Route::resource('menus',menuController::class);
         Route::resource('orgs',orgStructureController::class);
+        Route::resource('pages',pageController::class);
+        Route::resource('members',orgMemberController::class);
+        Route::resource('media',mediaGalleryController::class);
+        Route::resource('students',studentController::class);
         Route::resource('notice-boards',noticeBoardController::class);
         Route::resource('testimonials',testimonialController::class);
+        Route::resource('facilites',faciliteController::class);
 
-          
         //master
-        Route::get('role-master',[masterController::class,'roleMaster']);
+        Route::get('parent-master',[masterController::class,'parentMaster']);
+        Route::get('content-master',[masterController::class,'contentMaster']);
 
-        
         // Route::get('log',[HomeController::class,'logIndex']);
 
         Route::controller(commonController::class)->group(function () {
