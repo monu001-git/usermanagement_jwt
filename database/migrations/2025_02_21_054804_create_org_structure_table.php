@@ -29,6 +29,9 @@ return new class extends Migration
             $table->string('menu_logo', 255)->nullable();
             $table->string('favicon', 255)->nullable();
             $table->text('address')->nullable();
+            $table->string('header_video', 255)->nullable();
+            $table->text('footer_content')->nullable();
+
 
         //socal media
             $table->string('instagram', 255)->nullable();
@@ -41,8 +44,25 @@ return new class extends Migration
          //basic
             $table->string('payFee', 255)->nullable();  
             $table->string('admissionOpenLink', 255)->nullable();
-            $table->string('video_url', 255)->nullable();
             $table->string('map',550)->nullable();
+
+        //about us
+            $table->string('about_heading', 255)->nullable();  
+            $table->text('about_content')->nullable();
+            $table->string('about_video', 255)->nullable();
+            $table->string('about_image1', 255)->nullable();
+            $table->string('about_image2',255)->nullable();
+        //facilities
+            $table->string('facilitie_heading', 255)->nullable();
+            $table->text('facilitie_content')->nullable();   
+          
+        // 4 url
+            $table->string('url1', 255)->nullable();    
+            $table->string('url2', 255)->nullable();    
+            $table->string('url3', 255)->nullable();    
+            $table->string('url4', 255)->nullable();    
+
+
 
             $table->softDeletes();
             $table->timestamps();

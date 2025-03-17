@@ -17,7 +17,9 @@ class orgStructureController extends Controller
     {
         try {
 
-            $org = org_structure::orderBy('id','asc')->get();
+            $orgData = org_structure::orderBy('id','asc')->get();
+            $org = dEncrypt($orgData);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',

@@ -16,7 +16,9 @@ class testimonialController extends Controller
     {
         try {
 
-            $testimonial = testimonial::orderBy('id','asc')->get();
+            $testimonialData = testimonial::orderBy('id','desc')->get();
+            $testimonial = dEncrypt($testimonialData);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -50,7 +52,7 @@ class testimonialController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                'title' => 'required',
+               // 'title' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -60,19 +62,20 @@ class testimonialController extends Controller
                 ], 422);
             }
             
+
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
             $data = new testimonial;
-            $data->title = ucwords($request->title);
-            $data->testimonial  = $request->testimonial;
-            $data->giver_name  = $request->giver_name;
-            $data->giver_role  = $request->giver_role;
-            $data->status  = $request->status;
-            $data->order  = $request->order;
-
-
+            $data->title = ucwords($decryptedData['title']);
+            $data->testimonial  = $decryptedData['testimonial'];
+            $data->giver_name  =  $decryptedData['giver_name'];
+            $data->giver_role  = $decryptedData['giver_role'];
+            $data->status  = $decryptedData['status'];
+            $data->order  = $decryptedData['order'];
 
             $path = public_path('uploads/testimonial');
-            if ($request->has('image')) {
-               $base64Image = $request->input('image');
+            if(!empty($decryptedData['image']) ) {
+               $base64Image =  $decryptedData['image'];
                if($base64Image != null){
    
                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -177,32 +180,33 @@ class testimonialController extends Controller
         try {
            
             $testimonial = testimonial::where('id',$id)->first();
-
+           
             if (!empty($testimonial)) {
 
                 $validator = Validator::make($request->all(), [
-                  'title' => 'required',
+                  // 'title' => 'required',
                 ]);
 
-                if ($validator->fails()) {
-                    return response()->json([
-                        'errors' => $validator->errors(),
-                        'message' => 'Validation failed',
-                    ], 422);
-                }           
+                // if ($validator->fails()) {
+                //     return response()->json([
+                //         'errors' => $validator->errors(),
+                //         'message' => 'Validation failed',
+                //     ], 422);
+                // }           
+
+                $decryptedData = json_decode(dDecrypt($request->data), true);
 
                 $data = testimonial::find($id);
-                $data->title = ucwords($request->title);
-                $data->testimonial  = $request->testimonial;
-                $data->giver_name  = $request->giver_name;
-                $data->giver_role  = $request->giver_role;
-                $data->status  = $request->status;
-                $data->order  = $request->order;
-
-
+                $data->title = ucwords($decryptedData['title']);
+                $data->testimonial  = $decryptedData['testimonial'];
+                $data->giver_name  =  $decryptedData['giver_name'];
+                $data->giver_role  = $decryptedData['giver_role'];
+                $data->status  = $decryptedData['status'];
+                $data->order  = $decryptedData['order'];
+    
                 $path = public_path('uploads/testimonial');
-                if ($request->has('image')) {
-                   $base64Image = $request->input('image');
+                if(!empty($decryptedData['image']) ) {
+                   $base64Image = $decryptedData['image'];
                    if($base64Image != null){
        
                     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -276,6 +280,7 @@ class testimonialController extends Controller
     public function destroy($id)
     {
         try {
+            return $id;
         
             $testimonial = testimonial::where('id',$id)->first();
             if (!empty($testimonial)) {

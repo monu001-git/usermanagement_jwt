@@ -14,7 +14,10 @@ class noticeBoardController extends Controller
     public function index()
     {
         try {
-            $noticeBoard = notice_board::orderBy('id','desc')->get();
+
+            $noticeBoardData = notice_board::orderBy('id','desc')->get();
+            $noticeBoard = dEncrypt($noticeBoardData);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -48,9 +51,9 @@ class noticeBoardController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                //'title' => 'required|unique:notice_boards,title',
-                //'order' => 'required',
-               // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // 'title' => 'required|unique:notice_boards,title',
+                // 'order' => 'required',
+                // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             if ($validator->fails()) {
@@ -60,27 +63,26 @@ class noticeBoardController extends Controller
                 ], 422);
             }
             
+            $decryptedData = json_decode(dDecrypt($request->data), true);
 
+    
             $data = new notice_board;
-            $data->title = ucwords($request->title);
-            $data->date  = $request->date;
-            $data->publiser  = 'admin';
-            $data->link_type  = $request->link_type;
-            $data->order  = $request->order;
-            $data->status  = $request->status;
+            $data->title = ucwords($decryptedData['title']);
+            $data->date  = $decryptedData['date'];
+            $data->publiser  = 'admin' ;
+            // $data->link_type  = $decryptedData['link_type'];
+            $data->order  =  $decryptedData['order'];
+            $data->status  = $decryptedData['status'];
 
             $path = public_path('uploads');
-            if ($request->has('pdf')) {
-               $base64Image = $request->input('pdf');
+            if(!empty($decryptedData['pdf']) ) {
+               $base64Image = $decryptedData['pdf'];
                if($base64Image != null){
-    
                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                 $image = base64_decode($imageData);
-        
                 $finfo = finfo_open();
                 $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
                 finfo_close($finfo);
-        
                 $extension = '';
                 if ($mimeType == 'application/pdf') {
                     $extension = 'pdf';
@@ -94,8 +96,8 @@ class noticeBoardController extends Controller
                 file_put_contents($path . '/' . $newname, $image);
                 $data->pdf = $newname;
                }
-           }
-
+            }
+ 
             $data->save();
 
                 return response()->json([
@@ -131,9 +133,9 @@ class noticeBoardController extends Controller
     public function show(string $id)
     {
         try{
-
             $noticeBoard = notice_board::find($id);
-            if($noticeBoard != null){
+           
+             if($noticeBoard != null){
 
                 return response()->json([
                     'status' => 200,
@@ -174,9 +176,9 @@ class noticeBoardController extends Controller
     {
         try {
         $validator = Validator::make($request->all(), [
-            //'title' => 'required|unique:notice_boards,title',
-            //'order' => 'required',
-           // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'title' => 'required|unique:notice_boards,title',
+            // 'order' => 'required',
+            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -185,20 +187,20 @@ class noticeBoardController extends Controller
                 'message' => 'Validation failed',
             ], 422);
         }
-        
 
+       
+        $decryptedData = json_decode(dDecrypt($request->updatedData), true);
+ 
         $data = notice_board:: find($id);
-        $data->title = ucwords($request->title);
-        $data->date  = $request->date;
-        $data->publiser  = 'admin';
-        $data->link_type  = $request->link_type;
-        $data->order  = $request->order;
-        $data->status  = $request->status;
+        $data->title = ucwords($decryptedData['title']);
+        $data->date  = $decryptedData['date'];
+        $data->publiser  = 'admin' ;
+        $data->order  =  $decryptedData['order'];
+        $data->status  = $decryptedData['status'];
 
-              
         $path = public_path('uploads');
-        if ($request->has('pdf')) {
-           $base64Image = $request->input('pdf');
+        if(!empty($decryptedData['pdf']) ) {
+            $base64Image = $decryptedData['pdf'];
            if($base64Image != null){
 
             $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -221,7 +223,7 @@ class noticeBoardController extends Controller
             file_put_contents($path . '/' . $newname, $image);
             $data->pdf = $newname;
            }
-       }
+        }
 
         $data->save();
 
@@ -257,8 +259,9 @@ class noticeBoardController extends Controller
     public function destroy(string $id)
     {
         try {
-        
-            $noticeBoard = notice_board::where('id',$id)->first();
+
+            $noticeBoard = notice_board::where('id', $id)->first();
+
             if (!empty($noticeBoard)) {
                 notice_board::find($id)->delete();
             } else {

@@ -53,8 +53,7 @@ class userController extends Controller
    
     public function store(Request $request)
     {
-       // dd($request->all());
-        // try {
+        try {
             $validator = Validator::make($request->all(), [
                 //'name' => 'required',
                 //'email' => 'required|email|max:255|unique:users,email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
@@ -68,37 +67,40 @@ class userController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
-            $input = $request->all();
-            $input['password'] = Hash::make($input['password']);
 
-            $user = User::create($input);
-           // $user->assignRole($request->input('roles'));
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+          
+            $data = new User;
+            $data->name = $decryptedData['name'];
+            $data->email  = $decryptedData['email'];
+            $data->password  = $decryptedData['password'];
+          
+            $data->save();
 
             return response()->json([
                 'status' => 200,
                 'success' => "User Created successfully",
             ]);
 
-        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'Database error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An error occurred while fetching the data.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An unexpected error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // }
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Models\menu;
 use DB;
@@ -117,10 +118,14 @@ class homeController extends Controller
          
         try{
 
-            $noticeBoardadfaddsf = DB::table('notice_boards')->where('status', 1)->orderBy('order','desc')->get();
-          
-            $noticeBoard = dEncrypt($noticeBoardadfaddsf);
-
+            $noticeBoardData = DB::table('notice_boards')
+            ->where('status', 1)
+            ->orderBy('order', 'desc')
+            ->get()
+            ->toJson(); // Convert to JSON
+        
+            $noticeBoard = dEncrypt($noticeBoardData);
+        
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -148,13 +153,5 @@ class homeController extends Controller
         }
 
     }
-
-
-    public function testimonialData(){
-        
-    }
-
-
-
 
 }

@@ -20,6 +20,7 @@ use App\Http\Controllers\admin\studentController;
 use App\Http\Controllers\admin\mediaGalleryController;
 use App\Http\Controllers\admin\faciliteController;
 use App\Http\Controllers\homeController;
+use App\http\Middleware\logMiddleware;
 
 
     Route::post('/register', [authController::class, 'register']);
@@ -27,8 +28,7 @@ use App\Http\Controllers\homeController;
     Route::get('/logout', [authController::class, 'logout']);
    
     // Route::middleware('auth:api')->group( function () {
-    //     Route::middleware([logMiddleware::class])->group(function () {
-
+        // Route::middleware([logMiddleware::class])->group(function () {
         Route::resource('users',userController::class);
         Route::resource('roles',roleController::class);
         Route::resource('banners',bannerController::class);
@@ -41,21 +41,15 @@ use App\Http\Controllers\homeController;
         Route::resource('notice-boards',noticeBoardController::class);
         Route::resource('testimonials',testimonialController::class);
         Route::resource('facilites',faciliteController::class);
-
         //master
         Route::get('parent-master',[masterController::class,'parentMaster']);
         Route::get('content-master',[masterController::class,'contentMaster']);
-
-        // Route::get('log',[HomeController::class,'logIndex']);
-
+        Route::get('log',[HomeController::class,'logIndex']);
         Route::controller(commonController::class)->group(function () {
            Route::get('status-change/{status?}/{id?}/{db?}', 'StatusChange');
         });
-
-   
-
-//     });
-// });
+    // });
+    // });
 
 
 Route::controller(homeController::class)->group(function () {
