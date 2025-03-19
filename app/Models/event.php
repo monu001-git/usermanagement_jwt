@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class media extends Model
+class event extends Model
 {
-    protected $table = 'medias';
+    //
 }
