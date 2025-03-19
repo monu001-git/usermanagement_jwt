@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('image_title',255)->nullable();
             $table->string('page_images',255)->nullable(); 
-            $table->unsignedBigInteger('page_id')->unique(); 
+            $table->unsignedBigInteger('page_id'); 
             $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade'); 
             $table->softDeletes();
             $table->timestamps();

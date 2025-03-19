@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->text('descriptions')->nullable();
             $table->string('content_image',255)->nullable();
-            $table->unsignedBigInteger('page_id')->unique(); 
+            $table->unsignedBigInteger('page_id'); 
             $table->foreign('page_id')->references('id')->on('pages')->onDelete('cascade'); 
             $table->softDeletes();
             $table->timestamps();

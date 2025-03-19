@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\auth\authController;
@@ -41,6 +39,7 @@ use App\http\Middleware\logMiddleware;
         Route::resource('notice-boards',noticeBoardController::class);
         Route::resource('testimonials',testimonialController::class);
         Route::resource('facilites',faciliteController::class);
+        
         //master
         Route::get('parent-master',[masterController::class,'parentMaster']);
         Route::get('content-master',[masterController::class,'contentMaster']);
