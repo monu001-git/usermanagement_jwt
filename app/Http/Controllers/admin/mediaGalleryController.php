@@ -4,7 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\media;
+use App\Models\event;
+use App\Models\event_image;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
@@ -17,11 +18,11 @@ class mediaGalleryController extends Controller
     {
         try {
 
-            $media = media::orderBy('id','asc')->get();
+            $event = event::orderBy('id','asc')->get();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
-                'data' => $media
+                'data' => $event
             ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
@@ -50,56 +51,68 @@ class mediaGalleryController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
-                'title' => 'required',
-            ]);
+            // $validator = Validator::make($request->all(), [
+            //     'title' => 'required',
+            // ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'errors' => $validator->errors(),
-                    'message' => 'Validation failed',
-                ], 422);
-            }
+            // if ($validator->fails()) {
+            //     return response()->json([
+            //         'errors' => $validator->errors(),
+            //         'message' => 'Validation failed',
+            //     ], 422);
+            // }
             
-            $data = new media;
-            $data->title = $request->title;
+            $data = new event;
+            $data->name = $request->name;
+            $data->description  = $request->description;
+            $data->event_date  = $request->event_date;
             $data->status  = $request->status;
             $data->order  = $request->order;
-
-      
-            $path = public_path('uploads/media');
-            if ($request->has('image')) {
-               $base64Image = $request->input('image');
-               if($base64Image != null){
-    
-                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                $image = base64_decode($imageData);
-        
-                $finfo = finfo_open();
-                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                finfo_close($finfo);
-        
-                $extension = '';
-                if ($mimeType == 'image/jpeg') {
-                    $extension = 'jpg';
-                } elseif ($mimeType == 'image/png') {
-                    $extension = 'png';
-                } elseif ($mimeType == 'image/gif') {
-                    $extension = 'gif';
-                } else {
-                    return response()->json(['error' => 'Unsupported image format'], 400);
-                }
-                $newname = time() . rand(10, 99) . '.' . $extension;
-                if (!file_exists($path)) {
-                    mkdir($path, 0777, true);
-                }
-                file_put_contents($path . '/' . $newname, $image);
-                $data->image = $newname;
-               }
-           }
-
-
             $data->save();
+
+            if(!empty($imageContent)){
+                foreach ($request->imageContent as $index => $imageContents) {
+                    if ($imageContents) {
+                        $imageContentss = new event_image();
+                        $imageContentss->image_name = $imageContents['image_name'];;
+                        $path = public_path('uploads/event');
+                        if ($request->has('image_path')) {
+                           $base64Image = $request->input('image_path');
+                           if($base64Image != null){
+                
+                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                            $image = base64_decode($imageData);
+                    
+                            $finfo = finfo_open();
+                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                            finfo_close($finfo);
+                    
+                            $extension = '';
+                            if ($mimeType == 'image/jpeg') {
+                                $extension = 'jpg';
+                            } elseif ($mimeType == 'image/png') {
+                                $extension = 'png';
+                            } elseif ($mimeType == 'image/gif') {
+                                $extension = 'gif';
+                            } else {
+                                return response()->json(['error' => 'Unsupported image format'], 400);
+                            }
+                            $newname = time() . rand(10, 99) . '.' . $extension;
+                            if (!file_exists($path)) {
+                                mkdir($path, 0777, true);
+                            }
+                            file_put_contents($path . '/' . $newname, $image);
+                            $data->image_path = $newname;
+                           }
+                        }
+                        $imageContentss->event_id  = $data->id;
+                        $imageContentss->save();
+                    }
+                }
+            }
+      
+        
+
 
             return response()->json([
                 'status' => 200,

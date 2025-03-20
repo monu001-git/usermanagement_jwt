@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name',255);
             $table->text('description')->nullable(); 
             $table->dateTime('event_date')->nullable(); 
+            $table->integer('order')->nullable()->default(0);
+            $table->boolean('status')->default(0)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
