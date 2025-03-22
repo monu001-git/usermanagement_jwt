@@ -50,15 +50,13 @@ class orgStructureController extends Controller
   
     public function store(Request $request)
     {
-        try {
-
-           
+        try {   
            $decryptedData = json_decode(dDecrypt($request->data), true);
-
-            $validator = Validator::make($decryptedData, [
-               // 'name' => 'required|string',
-               // 'email' => 'required|email',
-            ]);
+        
+           $validator = Validator::make($decryptedData, [
+            'name' => 'required',
+            'email' => 'required|email|max:255|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
+           ]);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -66,7 +64,7 @@ class orgStructureController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-        
+    
             $data = new org_structure;
             $data->meta_title = $decryptedData['meta_title'];
             $data->meta_description = $decryptedData['meta_description'];
@@ -320,7 +318,8 @@ class orgStructureController extends Controller
     {
         try {
 
-            $org = org_structure::find($id);
+            $orgData = org_structure::find($id);
+            $org = dEncrypt($orgData);
             if($org != null){
                 return response()->json([
                     'status' => 200,
@@ -358,7 +357,7 @@ class orgStructureController extends Controller
 
     public function update(Request $request, $id)
     {
-        // try {
+        try {
            
             $org = org_structure::where('id',$id)->first();
 
@@ -367,8 +366,8 @@ class orgStructureController extends Controller
                 $decryptedData = json_decode(dDecrypt($request->data), true);
 
                 $validator = Validator::make($decryptedData, [
-                   // 'name' => 'required|string',
-                   // 'email' => 'required|email',
+                    'name' => 'required|string',
+                    'email' => 'required|email',
                 ]);
     
                 if ($validator->fails()) {
@@ -377,7 +376,9 @@ class orgStructureController extends Controller
                         'message' => 'Validation failed',
                     ], 422);
                 }
-                       
+                
+                return $decryptedData;
+
                 $data = org_structure::find($id);
                 $data->meta_title = $decryptedData['meta_title'];
                 $data->meta_description = $decryptedData['meta_description'];
@@ -395,7 +396,7 @@ class orgStructureController extends Controller
                 $data->admissionOpenLink = $decryptedData['admissionOpenLink'];
                 $data->map = $decryptedData['map'];
                 $data->footer_content = $decryptedData['footer_content'];
-        
+                
                 $data->about_heading = $decryptedData['about_heading'];
                 $data->about_content = $decryptedData['about_content'];
                 $data->about_video = $decryptedData['about_video'];
@@ -614,33 +615,35 @@ class orgStructureController extends Controller
             }
 
 
-        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'Database error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An error occurred while fetching the data.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An unexpected error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // }    
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }    
     }
 
    
     public function destroy($id)
     {
         try {
-            $menu = org_structure::where('id',$id)->first();
-            if (!empty($menu)) {
+
+            $org = org_structure::where('id',$id)->first();
+
+            if (!empty($org)) {
                 org_structure::find($id)->delete();
             } else {
                return response()->json([

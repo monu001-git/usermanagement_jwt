@@ -14,15 +14,14 @@ use Illuminate\Support\Facades\Validator;
 
 class userController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         try {
-            $user = User::orderBy('id','desc')->get();    
+
+            $userData = User::orderBy('id','desc')->get();    
+
+            $user = dEncrypt($userData);
+
             return response()->json([
                 'status' => 200,
                 'success', 'User deleted successfully',
@@ -54,11 +53,12 @@ class userController extends Controller
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                //'name' => 'required',
-                //'email' => 'required|email|max:255|unique:users,email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
-                //'password' => 'required|same:confirm-password',
-                //'roles' => 'required'
+          
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            $validator = Validator::make($decryptedData, [
+                'name' => 'required',
+                'email' => 'required|email|max:255|unique:users,email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
             ]);
 
             if ($validator->fails()) {
@@ -67,8 +67,7 @@ class userController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-
-            $decryptedData = json_decode(dDecrypt($request->data), true);
+        
           
             $data = new User;
             $data->name = $decryptedData['name'];
@@ -109,7 +108,8 @@ class userController extends Controller
     {
         try {
        
-            $user = User::find($id);
+            $userData = User::find($id);
+            $user = dEncrypt($userData);
             if($user != null){
 
                 return response()->json([
@@ -150,11 +150,17 @@ class userController extends Controller
     
     public function update(Request $request, $id)
     {
-        // try {
-            $validator = Validator::make($request->all(), [
+        try {
+        
+            $user = User::where('id',$id)->first();
+    
+            if (!empty($user)) {
+
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+          
+            $validator = Validator::make($decryptedData, [
                 'name' => 'required',
                 'email' => 'required|email|max:255|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
-               // 'roles' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -163,47 +169,48 @@ class userController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
-            $input = $request->all();
            
-
-            if (!empty($input['password'])) {
-                $input['password'] = Hash::make($input['password']);
-            } else {
-                $input = Arr::except($input, array('password'));
-            }
-
-            $user = User::find($id);
-            $user->update($input);
-           // DB::table('model_has_roles')->where('model_id', $id)->delete();
-
-          //  $user->assignRole($request->input('roles'));
-
+            $data = User::find($id);
+            $data->name = $decryptedData['name'];
+            $data->email  = $decryptedData['email'];
+            $data->password  = $decryptedData['password'];
+            $data->save();
+           
         
             return response()->json([
                 'status' => 200,
                 'success' => 'User Updated successfully',
             ]);
 
-        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'Database error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An error occurred while fetching the data.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-        //     return response()->json([
-        //         'status' => 500,
-        //         'message' => 'An unexpected error occurred.',
-        //         'error' => $e->getMessage()
-        //     ], 500);
-        // }
+
+        }else{
+
+            return response()->json([
+                'message' => 'You are trying to perform an unethical process. Your request is failed.',
+                'status' => false,
+            ], 400); 
+
+        }
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
   

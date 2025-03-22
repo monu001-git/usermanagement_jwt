@@ -70,22 +70,25 @@ class mediaGalleryController extends Controller
             $data->order  = $request->order;
             $data->save();
 
-            if(!empty($imageContent)){
+            if(!empty($request->imageContent)){
                 foreach ($request->imageContent as $index => $imageContents) {
                     if ($imageContents) {
                         $imageContentss = new event_image();
-                        $imageContentss->image_name = $imageContents['image_name'];;
+                        $imageContentss->image_name = $imageContents['image_name'];
+
                         $path = public_path('uploads/event');
-                        if ($request->has('image_path')) {
-                           $base64Image = $request->input('image_path');
-                           if($base64Image != null){
-                
+                        if(!empty($imageContents['image_path']) ) {
+                        $base64Image = $imageContents['image_path'];
+                        if($base64Image != null){
+
                             $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                             $image = base64_decode($imageData);
                     
                             $finfo = finfo_open();
                             $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
                             finfo_close($finfo);
+
+                            return  $mimeType;
                     
                             $extension = '';
                             if ($mimeType == 'image/jpeg') {
@@ -103,8 +106,9 @@ class mediaGalleryController extends Controller
                             }
                             file_put_contents($path . '/' . $newname, $image);
                             $data->image_path = $newname;
-                           }
                         }
+                        }
+
                         $imageContentss->event_id  = $data->id;
                         $imageContentss->save();
                     }
@@ -145,12 +149,12 @@ class mediaGalleryController extends Controller
     {
         try {
 
-            $media = media::find($id);
-            if($media != null){
+            $event = event::find($id);
+            if($event != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'Media Show Successfully',
-                    'data' => $media
+                    'success', 'Event Show Successfully',
+                    'data' => $event
                 ]);
             }else{
                 return response()->json([
@@ -185,9 +189,9 @@ class mediaGalleryController extends Controller
     {
         try {
            
-            $media = media::where('id',$id)->first();
+            $event = event::where('id',$id)->first();
 
-            if (!empty($media)) {
+            if (!empty($event)) {
 
                 $validator = Validator::make($request->all(), [
                   'title' => 'required',
@@ -200,11 +204,12 @@ class mediaGalleryController extends Controller
                     ], 422);
                 }           
 
-                $data = media::find($id);
+                $data = event::find($id);
                 $data->title = $request->title;
                 $data->status  = $request->status;
                 $data->order  = $request->order;
                       
+
                 $path = public_path('uploads/media');
                 if ($request->has('image')) {
                 $base64Image = $request->input('image');
@@ -280,9 +285,9 @@ class mediaGalleryController extends Controller
     {
         try {
         
-            $media = media::where('id',$id)->first();
-            if (!empty($media)) {
-                media::find($id)->delete();
+            $event = event::where('id',$id)->first();
+            if (!empty($event)) {
+                event::find($id)->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',
