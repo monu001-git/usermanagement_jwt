@@ -12,13 +12,14 @@ use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 
-class mediaGalleryController extends Controller
+class eventGalleryController extends Controller
 {
     public function index(Request $request)
     {
         try {
 
-            $event = event::orderBy('id','asc')->get();
+            $eventData = event::orderBy('id','desc')->get();
+            $event = dEncrypt($eventData);
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -51,73 +52,72 @@ class mediaGalleryController extends Controller
     {
         try {
 
-            // $validator = Validator::make($request->all(), [
-            //     'title' => 'required',
-            // ]);
+            $decryptedData = json_decode(dDecrypt($request->data), true);
 
-            // if ($validator->fails()) {
-            //     return response()->json([
-            //         'errors' => $validator->errors(),
-            //         'message' => 'Validation failed',
-            //     ], 422);
-            // }
+            $validator = Validator::make($decryptedData, [
+                'name' => 'required',
+                'order' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                    'message' => 'Validation failed',
+                ], 422);
+            }
+
             
             $data = new event;
-            $data->name = $request->name;
-            $data->description  = $request->description;
-            $data->event_date  = $request->event_date;
-            $data->status  = $request->status;
-            $data->order  = $request->order;
+            $data->name = $decryptedData['name'];
+            $data->description  = $decryptedData['description'];
+            $data->event_date  = $decryptedData['event_date'];
+            $data->status  =$decryptedData['status'];
+            $data->order  = $decryptedData['order'];
             $data->save();
 
-            if(!empty($request->imageContent)){
-                foreach ($request->imageContent as $index => $imageContents) {
-                    if ($imageContents) {
-                        $imageContentss = new event_image();
-                        $imageContentss->image_name = $imageContents['image_name'];
+            if(!empty($decryptedData['imageContent'])){
+                foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+                if ($imageContents) {
+                  $imageContentss = new event_image();
+                    $imageContentss->image_name = $imageContents['image_name'];
+                    $path = public_path('uploads/event');
+                    if(!empty($imageContents['image_path']) ) {
+                    $base64Image = $imageContents['image_path'];
+                    if($base64Image != null){
 
-                        $path = public_path('uploads/event');
-                        if(!empty($imageContents['image_path']) ) {
-                        $base64Image = $imageContents['image_path'];
-                        if($base64Image != null){
+                        $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                        $image = base64_decode($imageData);
+                
+                        $finfo = finfo_open();
+                        $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                        finfo_close($finfo);
 
-                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                            $image = base64_decode($imageData);
-                    
-                            $finfo = finfo_open();
-                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                            finfo_close($finfo);
-
-                            return  $mimeType;
-                    
-                            $extension = '';
-                            if ($mimeType == 'image/jpeg') {
-                                $extension = 'jpg';
-                            } elseif ($mimeType == 'image/png') {
-                                $extension = 'png';
-                            } elseif ($mimeType == 'image/gif') {
-                                $extension = 'gif';
-                            } else {
-                                return response()->json(['error' => 'Unsupported image format'], 400);
-                            }
-                            $newname = time() . rand(10, 99) . '.' . $extension;
-                            if (!file_exists($path)) {
-                                mkdir($path, 0777, true);
-                            }
-                            file_put_contents($path . '/' . $newname, $image);
-                            $data->image_path = $newname;
+                        return  $mimeType;
+                
+                        $extension = '';
+                        if ($mimeType == 'image/jpeg') {
+                            $extension = 'jpg';
+                        } elseif ($mimeType == 'image/png') {
+                            $extension = 'png';
+                        } elseif ($mimeType == 'image/gif') {
+                            $extension = 'gif';
+                        } else {
+                            return response()->json(['error' => 'Unsupported image format'], 400);
                         }
+                        $newname = time() . rand(10, 99) . '.' . $extension;
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
                         }
-
-                        $imageContentss->event_id  = $data->id;
-                        $imageContentss->save();
+                        file_put_contents($path . '/' . $newname, $image);
+                        $data->image_path = $newname;
                     }
+                    }
+                    $imageContentss->event_id  = $data->id;
+                    $imageContentss->save();
+                }
                 }
             }
-      
-        
-
-
+    
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Save Successfully!',
@@ -149,7 +149,8 @@ class mediaGalleryController extends Controller
     {
         try {
 
-            $event = event::find($id);
+            $menuData = event::find($id);
+            $event = dEncrypt($menuData);
             if($event != null){
                 return response()->json([
                     'status' => 200,
@@ -193,8 +194,11 @@ class mediaGalleryController extends Controller
 
             if (!empty($event)) {
 
-                $validator = Validator::make($request->all(), [
-                  'title' => 'required',
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+
+                $validator = Validator::make($decryptedData, [
+                    'name' => 'required',
+                    'order' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -202,7 +206,7 @@ class mediaGalleryController extends Controller
                         'errors' => $validator->errors(),
                         'message' => 'Validation failed',
                     ], 422);
-                }           
+                } 
 
                 $data = event::find($id);
                 $data->title = $request->title;

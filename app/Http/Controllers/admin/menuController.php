@@ -66,8 +66,6 @@ class menuController extends Controller
                 ], 422);
             }
 
-          //  return  $decryptedData;
-    
             $data = new menu;
             $data->name = ucwords($decryptedData['name']);
             $data->slug    = Str::slug($decryptedData['name'], "-");

@@ -139,7 +139,8 @@ class testimonialController extends Controller
     {
         try {
 
-            $testimonial = testimonial::find($id);
+            $testimonialData = testimonial::find($id);
+            $testimonial = dEncrypt($testimonialData);
             if($testimonial != null){
                 return response()->json([
                     'status' => 200,

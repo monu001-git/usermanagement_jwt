@@ -17,7 +17,9 @@ class studentController extends Controller
     {
         try {
 
-            $student = student::orderBy('id','asc')->get();
+            $studentData = student::orderBy('id','Desc')->get();
+            $student = dEncrypt($studentData);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -50,8 +52,10 @@ class studentController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+            $validator = Validator::make($decryptedData, [
                 'name' => 'required',
+                
             ]);
 
             if ($validator->fails()) {
@@ -60,16 +64,17 @@ class studentController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
+        
             
             $data = new student;
-            $data->name = $request->name;
-            $data->status  = $request->status;
-            $data->order  = $request->order;
+            $data->name = $decryptedData['name'];
+            $data->status  = $decryptedData['status'];
+            $data->order  = $decryptedData['order'];
 
       
             $path = public_path('uploads/student');
-            if ($request->has('image')) {
-               $base64Image = $request->input('image');
+            if ($decryptedData['image']) {
+               $base64Image = $decryptedData['image']; 
                if($base64Image != null){
     
                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -96,9 +101,7 @@ class studentController extends Controller
                 file_put_contents($path . '/' . $newname, $image);
                 $data->image = $newname;
                }
-           }
-
-
+            }
             $data->save();
 
             return response()->json([
@@ -132,7 +135,8 @@ class studentController extends Controller
     {
         try {
 
-            $student = student::find($id);
+            $studentData = student::find($id);
+            $student = dEncrypt($studentData);
             if($student != null){
                 return response()->json([
                     'status' => 200,
@@ -176,8 +180,10 @@ class studentController extends Controller
 
             if (!empty($student)) {
 
-                $validator = Validator::make($request->all(), [
-                  'name' => 'required',
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+          
+                $validator = Validator::make($decryptedData, [
+                    'name' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -185,18 +191,18 @@ class studentController extends Controller
                         'errors' => $validator->errors(),
                         'message' => 'Validation failed',
                     ], 422);
-                }           
+                }            
 
                 $data = student::find($id);
-                $data->name = $request->name;
-                $data->status  = $request->status;
-                $data->order  = $request->order;
-                      
+                $data->name = $decryptedData['name'];
+                $data->status  = $decryptedData['status'];
+                $data->order  = $decryptedData['order'];
+    
                 $path = public_path('uploads/student');
-                if ($request->has('image')) {
-                $base64Image = $request->input('image');
-                if($base64Image != null){
-
+                if ($decryptedData['image']) {
+                   $base64Image = $decryptedData['image']; 
+                   if($base64Image != null){
+        
                     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                     $image = base64_decode($imageData);
             
@@ -220,10 +226,10 @@ class studentController extends Controller
                     }
                     file_put_contents($path . '/' . $newname, $image);
                     $data->image = $newname;
+                   }
                 }
-            }
-
                 $data->save();
+    
             
                 return response()->json([
                     'status' => 200,

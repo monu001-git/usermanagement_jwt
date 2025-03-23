@@ -18,7 +18,8 @@ class orgMemberController extends Controller
     {
         try {
 
-            $member = org_member::orderBy('id','asc')->get();
+            $memberData = org_member::orderBy('id','Desc')->get();
+            $member = dEncrypt($memberData);
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -51,8 +52,11 @@ class orgMemberController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+         
+            $validator = Validator::make($decryptedData, [
                 'name' => 'required',
+                
             ]);
 
             if ($validator->fails()) {
@@ -61,16 +65,16 @@ class orgMemberController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
+        
             $data = new org_member;
-            $data->name = $request->name;
-            $data->status  = $request->status;
-            $data->order  = $request->order;
+            $data->name = $decryptedData['name'];
+            $data->status  = $decryptedData['status'];
+            $data->order  =  $decryptedData['order'];
 
       
             $path = public_path('uploads/profile');
-            if ($request->has('image')) {
-               $base64Image = $request->input('image');
+            if ($decryptedData['image']) {
+               $base64Image = $decryptedData['image'];
                if($base64Image != null){
     
                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -97,7 +101,7 @@ class orgMemberController extends Controller
                 file_put_contents($path . '/' . $newname, $image);
                 $data->image = $newname;
                }
-           }
+             }
 
 
             $data->save();
@@ -133,7 +137,8 @@ class orgMemberController extends Controller
     {
         try {
 
-            $member = org_member::find($id);
+            $memberData = org_member::find($id);
+            $member = dEncrypt($memberData);
             if($member != null){
                 return response()->json([
                     'status' => 200,
@@ -177,8 +182,10 @@ class orgMemberController extends Controller
 
             if (!empty($member)) {
 
-                $validator = Validator::make($request->all(), [
-                  'name' => 'required',
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+          
+                $validator = Validator::make($decryptedData, [
+                    'name' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -189,15 +196,16 @@ class orgMemberController extends Controller
                 }           
 
                 $data = org_member::find($id);
-                $data->name = $request->name;
-                $data->status  = $request->status;
-                $data->order  = $request->order;
-                      
+                $data->name = $decryptedData['name'];
+                $data->status  = $decryptedData['status'];
+                $data->order  =  $decryptedData['order'];
+    
+          
                 $path = public_path('uploads/profile');
-                if ($request->has('image')) {
-                $base64Image = $request->input('image');
-                if($base64Image != null){
-
+                if ($decryptedData['image']) {
+                   $base64Image = $decryptedData['image'];
+                   if($base64Image != null){
+        
                     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                     $image = base64_decode($imageData);
             
@@ -221,9 +229,10 @@ class orgMemberController extends Controller
                     }
                     file_put_contents($path . '/' . $newname, $image);
                     $data->image = $newname;
-                }
-            }
-
+                   }
+                 }
+    
+    
                 $data->save();
             
                 return response()->json([

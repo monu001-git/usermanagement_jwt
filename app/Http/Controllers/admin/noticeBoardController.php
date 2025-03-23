@@ -50,27 +50,24 @@ class noticeBoardController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
-                // 'title' => 'required|unique:notice_boards,title',
-                // 'order' => 'required',
-                // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'errors' => $validator->errors(),
-                    'message' => 'Validation failed',
-                ], 422);
-            }
-            
             $decryptedData = json_decode(dDecrypt($request->data), true);
 
-    
+            $validator = Validator::make($decryptedData, [
+                'title' => 'required',
+                'order' => 'required',
+             ]);
+ 
+             if ($validator->fails()) {
+                 return response()->json([
+                     'errors' => $validator->errors(),
+                     'message' => 'Validation failed',
+                 ], 422);
+             }
+ 
             $data = new notice_board;
             $data->title = ucwords($decryptedData['title']);
             $data->date  = $decryptedData['date'];
             $data->publiser  = 'admin' ;
-            // $data->link_type  = $decryptedData['link_type'];
             $data->order  =  $decryptedData['order'];
             $data->status  = $decryptedData['status'];
 
@@ -100,10 +97,10 @@ class noticeBoardController extends Controller
  
             $data->save();
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Data Save Successfully!',
-                ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Save Successfully!',
+            ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
@@ -133,8 +130,8 @@ class noticeBoardController extends Controller
     public function show(string $id)
     {
         try{
-            $noticeBoard = notice_board::find($id);
-           
+            $noticeBoardData = notice_board::find($id);
+            $noticeBoard = dEncrypt($noticeBoardData);
              if($noticeBoard != null){
 
                 return response()->json([
