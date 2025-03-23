@@ -16,8 +16,8 @@ class menuController extends Controller
     {
         try {
 
-            $menu = menu::orderBy('id','asc')->get();
-
+            $menuData = menu::orderBy('id','Desc')->get();
+            $menu = dEncrypt($menuData);
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -50,8 +50,10 @@ class menuController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            $validator = Validator::make($decryptedData, [
+               'name' => 'required',
                 'order' => 'required',
                 'link_type' => 'required',
                 'menu_place' => 'required',
@@ -63,23 +65,25 @@ class menuController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
-            $data = new menu;
-            $data->name = ucwords($request->name);
-            $data->slug    = Str::slug($request->name, "-");
 
-            if ($request->link_type === "0") {
-                $data->url  = $request->url;
+          //  return  $decryptedData;
+    
+            $data = new menu;
+            $data->name = ucwords($decryptedData['name']);
+            $data->slug    = Str::slug($decryptedData['name'], "-");
+
+            if ($decryptedData['link_type'] === "external") {
+                $data->url  = "/";
             } else {
-                $data->url  =  Str::slug($request->name, "-");
+                $data->url  =  Str::slug($decryptedData['name'], "-");
             }
 
-            $data->parent_id = $request->parent_id;
-            $data->order  = $request->order;
-            $data->link_type = $request->link_type;
-            $data->menu_place  = $request->menu_place;
-            $data->status  = $request->status;
-            $data->content_id = $request->content_id;
+            $data->order  = $decryptedData['order'];
+            $data->link_type = $decryptedData['link_type'];
+            $data->menu_place  =$decryptedData['menu_place'];
+            $data->status  = $decryptedData['status'];
+            $data->content_id =  $decryptedData['content_id'] ? $decryptedData['content_id']:null;
+            $data->parent_id = $decryptedData['parent_id'] ? $decryptedData['parent_id']:null ;
             $data->save();
 
             return response()->json([
@@ -113,13 +117,17 @@ class menuController extends Controller
     {
         try {
 
-            $menu = menu::find($id);
+            $menuData = menu::find($id);
+            $menu = dEncrypt($menuData);
             if($menu != null){
+
                 return response()->json([
+                    
                     'status' => 200,
-                    'success', 'Menu Show Successfully',
+                    'success' => 'Menu Show Successfully',
                     'data' => $menu
                 ]);
+
             }else{
                 return response()->json([
                     'status' => 200,
@@ -157,11 +165,13 @@ class menuController extends Controller
 
             if (!empty($menu)) {
 
-                $validator = Validator::make($request->all(), [
-                   // 'name' => 'required',
-                   // 'order' => 'required',
-                   // 'link_type' => 'required',
-                   // 'menu_place' => 'required',
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+
+                $validator = Validator::make($decryptedData, [
+                    'name' => 'required',
+                    'order' => 'required',
+                    'link_type' => 'required',
+                    'menu_place' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -169,26 +179,26 @@ class menuController extends Controller
                         'errors' => $validator->errors(),
                         'message' => 'Validation failed',
                     ], 422);
-                }           
+                }    
 
                 $data = menu::find($id);
-                $data->name = ucwords($request->name);
-                $data->slug    = Str::slug($request->name, "-");
+                $data->name = ucwords($decryptedData['name']);
+                $data->slug    = Str::slug($decryptedData['name'], "-");
     
-                if ($request->link_type === "0") {
-                    $data->url  = $request->url;
+                if ($decryptedData['link_type'] === "external") {
+                    $data->url  = "/";
                 } else {
-                    $data->url  =  Str::slug($request->name, "-");
+                    $data->url  =  Str::slug($decryptedData['name'], "-");
                 }
-                $data->content_id  = $request->content_id;
-                $data->parent_id = $request->parent_id;
-                $data->order  = $request->order;
-                $data->link_type = $request->link_type;
-                $data->status  = $request->status;
-                $data->menu_place  = $request->menu_place;
-            
+    
+                $data->order  = $decryptedData['order'];
+                $data->link_type = $decryptedData['link_type'];
+                $data->menu_place  =$decryptedData['menu_place'];
+                $data->status  = $decryptedData['status'];
+                $data->content_id =  $decryptedData['content_id'] ? $decryptedData['content_id']:null;
+                $data->parent_id = $decryptedData['parent_id'] ? $decryptedData['parent_id']:null ;
                 $data->save();
-
+            
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Update Successfully!',

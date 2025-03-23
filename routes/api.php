@@ -21,9 +21,9 @@ use App\Http\Controllers\homeController;
 use App\http\Middleware\logMiddleware;
 
 
-    Route::post('/register', [authController::class, 'register']);
-    Route::post('/login', [authController::class, 'login']);
-    Route::get('/logout', [authController::class, 'logout']);
+    Route::post('register', [authController::class, 'register']);
+    Route::post('login', [authController::class, 'login']);
+    Route::get('logout', [authController::class, 'logout']);
    
     // Route::middleware('auth:api')->group( function () {
         // Route::middleware([logMiddleware::class])->group(function () {

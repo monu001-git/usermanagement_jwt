@@ -15,26 +15,38 @@ class authController extends Controller
     public function login(Request $request)
     {
         try{
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|string|email',
+
+
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            $validator = Validator::make($decryptedData, [
                 'password' => 'required|string',
+                'email' => 'required|email|max:255|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 400);
+                return response()->json([
+                    'errors' => $validator->errors(),
+                    'message' => 'Validation failed',
+                ], 422);
             }
+        
+             $credentials = [
+                'email' => $decryptedData['email'],
+                'password' => $decryptedData['password'],
+            ];
 
-            $credentials = $request->only('email', 'password');
 
             $token = Auth::attempt($credentials);
             if (!$token) {
                 return response()->json([
-                    'status' => 'error',
+                    'status' =>  401,
                     'message' => 'Unauthorized',
-                ], 401);
+                ]);
             }
 
-            $user = Auth::user();
+            $userData = Auth::user();
+            $user = dEncrypt($userData);
             return response()->json([
                     'status'=> 200,
                     'message' => 'Login Successfully!!!',
