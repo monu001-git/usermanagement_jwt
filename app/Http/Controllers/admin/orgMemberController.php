@@ -137,7 +137,7 @@ class orgMemberController extends Controller
     {
         try {
 
-            $memberData = org_member::find($id);
+            $memberData = org_member::find(dDecrypt($id));
             $member = dEncrypt($memberData);
             if($member != null){
                 return response()->json([

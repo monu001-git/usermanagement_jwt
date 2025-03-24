@@ -130,7 +130,7 @@ class noticeBoardController extends Controller
     public function show(string $id)
     {
         try{
-            $noticeBoardData = notice_board::find($id);
+            $noticeBoardData = notice_board::find(dDecrypt($id));
             $noticeBoard = dEncrypt($noticeBoardData);
              if($noticeBoard != null){
 

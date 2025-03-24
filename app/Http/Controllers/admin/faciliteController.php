@@ -128,7 +128,7 @@ class faciliteController extends Controller
     {
         try {
 
-            $facilite = facilite::find($id);
+            $facilite = facilite::find(dDecrypt($id));
             if($facilite != null){
                 return response()->json([
                     'status' => 200,

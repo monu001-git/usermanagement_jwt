@@ -318,7 +318,7 @@ class orgStructureController extends Controller
     {
         try {
 
-            $orgData = org_structure::find($id);
+            $orgData = org_structure::find(dDecrypt($id));
             $org = dEncrypt($orgData);
             if($org != null){
                 return response()->json([

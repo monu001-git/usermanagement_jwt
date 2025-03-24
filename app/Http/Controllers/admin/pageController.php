@@ -226,7 +226,7 @@ class pageController extends Controller
     {
         try {
 
-            $pageData = page::find($id)->first();
+            $pageData = page::find(dDecrypt($id))->first();
 
             if ($pageData != null) {
                 $pageContent = DB::table('page_contents')

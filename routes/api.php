@@ -28,7 +28,6 @@ use App\http\Middleware\logMiddleware;
     Route::middleware('auth:api')->group( function () {
         // Route::middleware([logMiddleware::class])->group(function () {
         Route::resource('users',userController::class);
-        Route::resource('roles',roleController::class);
         Route::resource('banners',bannerController::class);
         Route::resource('menus',menuController::class);
         Route::resource('orgs',orgStructureController::class);

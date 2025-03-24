@@ -88,10 +88,7 @@ class eventGalleryController extends Controller
                     if(!empty($imageContents['image_path']) ) {
                         $base64Image = $imageContents['image_path'];
 
-                        if (!str_starts_with($base64Image, 'data:image/')) {
-                            return response()->json(['error' => 'Invalid base64 format'], 400);
-                        }
-
+                     
                         if($base64Image != null){
         
                         $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -116,14 +113,12 @@ class eventGalleryController extends Controller
                             mkdir($path, 0777, true);
                         }
                         file_put_contents($path . '/' . $newname, $image);
-                        $data->imageContents = $newname;
+                        $imageContentss->image_path = $newname;
                         }
                     }
                     $imageContentss->event_id  = $data->id;
                     $imageContentss->save();
     
-                    $imageContentss->event_id  = $data->id;
-                    $imageContentss->save();
                   }
                 }
             }
@@ -161,7 +156,7 @@ class eventGalleryController extends Controller
     {
         try {
 
-            $eventData = event::find($id);
+            $eventData = event::find(dDecrypt($id));
 
             if ($eventData != null) {
                    $eventImages = DB::table('event_images')
@@ -252,13 +247,11 @@ class eventGalleryController extends Controller
                         }
                     
                         $imageContentss->image_name = $imageContents['image_name'];
+
                         $path = public_path('uploads/event');
                         if(!empty($imageContents['image_path']) ) {
                             $base64Image = $imageContents['image_path'];
 
-                            if (!str_starts_with($base64Image, 'data:image/')) {
-                                return response()->json(['error' => 'Invalid base64 format'], 400);
-                            }
 
                             if($base64Image != null){
             
@@ -269,8 +262,6 @@ class eventGalleryController extends Controller
                             $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
                             finfo_close($finfo);
                     
-                            return $mimeType;
-
                             $extension = '';
                             if ($mimeType == 'image/jpeg') {
                                 $extension = 'jpg';
@@ -286,7 +277,7 @@ class eventGalleryController extends Controller
                                 mkdir($path, 0777, true);
                             }
                             file_put_contents($path . '/' . $newname, $image);
-                            $data->imageContents = $newname;
+                            $imageContentss->image_path = $newname;
                             }
                         }
                         $imageContentss->event_id  = $data->id;

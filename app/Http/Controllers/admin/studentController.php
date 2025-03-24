@@ -135,7 +135,7 @@ class studentController extends Controller
     {
         try {
 
-            $studentData = student::find($id);
+            $studentData = student::find(dDecrypt($id));
             $student = dEncrypt($studentData);
             if($student != null){
                 return response()->json([

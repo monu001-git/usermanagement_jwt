@@ -24,7 +24,7 @@ class userController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'success', 'User deleted successfully',
+                'success' => 'User deleted successfully',
                 'data' => $user
             ]);
      
@@ -106,9 +106,12 @@ class userController extends Controller
 
     public function show($id)
     {
+      
+
         try {
        
-            $userData = User::find($id);
+            $userData = User::find(dDecrypt($id));
+            
             $user = dEncrypt($userData);
             if($user != null){
 

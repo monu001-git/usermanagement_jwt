@@ -115,7 +115,7 @@ class menuController extends Controller
     {
         try {
 
-            $menuData = menu::find($id);
+            $menuData = menu::find(dDecrypt($id));
             $menu = dEncrypt($menuData);
             if($menu != null){
 
