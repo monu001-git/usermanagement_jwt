@@ -83,36 +83,44 @@ class eventGalleryController extends Controller
                 if ($imageContents) {
                     $imageContentss = new event_image();
                     $imageContentss->image_name = $imageContents['image_name'];
-                    // $path = public_path('uploads/event');
-                    // if ($imageContents['image_path']) {
-                    //    $base64Image = $imageContents['image_path']; 
-                    //    if($base64Image != null){
+                    $imageContentss->image_name = $imageContents['image_name'];
+                    $path = public_path('uploads/event');
+                    if(!empty($imageContents['image_path']) ) {
+                        $base64Image = $imageContents['image_path'];
+
+                        if (!str_starts_with($base64Image, 'data:image/')) {
+                            return response()->json(['error' => 'Invalid base64 format'], 400);
+                        }
+
+                        if($base64Image != null){
+        
+                        $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                     
+                        $image = base64_decode($imageData);
+                        $finfo = finfo_open();
+                        $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                        finfo_close($finfo);
             
-                    //     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                    //     $image = base64_decode($imageData);
-                
-                    //     $finfo = finfo_open();
-                    //     $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                    //     finfo_close($finfo);
-                
-                    //     $extension = '';
-                    //     if ($mimeType == 'image/jpeg') {
-                    //         $extension = 'jpg';
-                    //     } elseif ($mimeType == 'image/png') {
-                    //         $extension = 'png';
-                    //     } elseif ($mimeType == 'image/gif') {
-                    //         $extension = 'gif';
-                    //     } else {
-                    //         return response()->json(['error' => 'Unsupported image format'], 400);
-                    //     }
-                    //     $newname = time() . rand(10, 99) . '.' . $extension;
-                    //     if (!file_exists($path)) {
-                    //         mkdir($path, 0777, true);
-                    //     }
-                    //     file_put_contents($path . '/' . $newname, $image);
-                    //     $imageContentss->image_path = $newname;
-                    //    }
-                    // }
+                        $extension = '';
+                        if ($mimeType == 'image/jpeg') {
+                            $extension = 'jpg';
+                        } elseif ($mimeType == 'image/png') {
+                            $extension = 'png';
+                        } elseif ($mimeType == 'image/gif') {
+                            $extension = 'gif';
+                        } else {
+                            return response()->json(['error' => 'Unsupported image format'], 400);
+                        }
+                        $newname = time() . rand(10, 99) . '.' . $extension;
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $newname, $image);
+                        $data->imageContents = $newname;
+                        }
+                    }
+                    $imageContentss->event_id  = $data->id;
+                    $imageContentss->save();
     
                     $imageContentss->event_id  = $data->id;
                     $imageContentss->save();
@@ -213,6 +221,7 @@ class eventGalleryController extends Controller
 
                 $decryptedData = json_decode(dDecrypt($request->data), true);
 
+                return   $decryptedData;
                 $validator = Validator::make($decryptedData, [
                     'name' => 'required',
                     'order' => 'required',
@@ -235,7 +244,7 @@ class eventGalleryController extends Controller
            
                 if(!empty($decryptedData['imageContent'])){
                     foreach ($decryptedData['imageContent'] as $index => $imageContents) {
-
+                        return $imageContents;
                         if ($imageContents['imageId']) {
                             $imageContentss = event_image::find($imageContents['imageId']);
                         } else {
@@ -243,39 +252,43 @@ class eventGalleryController extends Controller
                         }
                     
                         $imageContentss->image_name = $imageContents['image_name'];
-        
-                        $imageContentss->image_name = $imageContents['image_name'];
-                        // $path = public_path('uploads/event');
-                        // if ($imageContents['image_path']) {
-                        //    $base64Image = $imageContents['image_path']; 
-                        //    if($base64Image != null){
-                
-                        //     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                        //     $image = base64_decode($imageData);
+                        $path = public_path('uploads/event');
+                        if(!empty($imageContents['image_path']) ) {
+                            $base64Image = $imageContents['image_path'];
+
+                            if (!str_starts_with($base64Image, 'data:image/')) {
+                                return response()->json(['error' => 'Invalid base64 format'], 400);
+                            }
+
+                            if($base64Image != null){
+            
+                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                         
+                            $image = base64_decode($imageData);
+                            $finfo = finfo_open();
+                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                            finfo_close($finfo);
                     
-                        //     $finfo = finfo_open();
-                        //     $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                        //     finfo_close($finfo);
-                    
-                        //     $extension = '';
-                        //     if ($mimeType == 'image/jpeg') {
-                        //         $extension = 'jpg';
-                        //     } elseif ($mimeType == 'image/png') {
-                        //         $extension = 'png';
-                        //     } elseif ($mimeType == 'image/gif') {
-                        //         $extension = 'gif';
-                        //     } else {
-                        //         return response()->json(['error' => 'Unsupported image format'], 400);
-                        //     }
-                        //     $newname = time() . rand(10, 99) . '.' . $extension;
-                        //     if (!file_exists($path)) {
-                        //         mkdir($path, 0777, true);
-                        //     }
-                        //     file_put_contents($path . '/' . $newname, $image);
-                        //     $imageContentss->image_path = $newname;
-                        //    }
-                        // }
-    
+                            return $mimeType;
+
+                            $extension = '';
+                            if ($mimeType == 'image/jpeg') {
+                                $extension = 'jpg';
+                            } elseif ($mimeType == 'image/png') {
+                                $extension = 'png';
+                            } elseif ($mimeType == 'image/gif') {
+                                $extension = 'gif';
+                            } else {
+                                return response()->json(['error' => 'Unsupported image format'], 400);
+                            }
+                            $newname = time() . rand(10, 99) . '.' . $extension;
+                            if (!file_exists($path)) {
+                                mkdir($path, 0777, true);
+                            }
+                            file_put_contents($path . '/' . $newname, $image);
+                            $data->imageContents = $newname;
+                            }
+                        }
                         $imageContentss->event_id  = $data->id;
                         $imageContentss->save();
                     }

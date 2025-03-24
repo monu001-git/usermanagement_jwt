@@ -25,7 +25,7 @@ use App\http\Middleware\logMiddleware;
     Route::post('login', [authController::class, 'login']);
     Route::get('logout', [authController::class, 'logout']);
    
-    // Route::middleware('auth:api')->group( function () {
+    Route::middleware('auth:api')->group( function () {
         // Route::middleware([logMiddleware::class])->group(function () {
         Route::resource('users',userController::class);
         Route::resource('roles',roleController::class);
@@ -48,7 +48,7 @@ use App\http\Middleware\logMiddleware;
            Route::get('status-change/{status?}/{id?}/{db?}', 'StatusChange');
         });
     // });
-    // });
+    });
 
 
 Route::controller(homeController::class)->group(function () {
