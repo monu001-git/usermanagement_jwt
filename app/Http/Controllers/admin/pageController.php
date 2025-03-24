@@ -479,7 +479,6 @@ class pageController extends Controller
                         $img->delete();
                     }
                 }
-
             }
 
             DB::commit();
