@@ -323,7 +323,7 @@ class orgStructureController extends Controller
             if($org != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'Org Show Successfully',
+                    'success' => 'Org Show Successfully',
                     'data' => $org
                 ]);
             }else{
@@ -359,7 +359,7 @@ class orgStructureController extends Controller
     {
         try {
            
-            $org = org_structure::where('id',$id)->first();
+            $org = org_structure::where('id',dDecrypt($id))->first();
 
             if (!empty($org)) {
 
@@ -376,10 +376,9 @@ class orgStructureController extends Controller
                         'message' => 'Validation failed',
                     ], 422);
                 }
-                
-                return $decryptedData;
+       
 
-                $data = org_structure::find($id);
+                $data = org_structure::find(dDecrypt($id));
                 $data->meta_title = $decryptedData['meta_title'];
                 $data->meta_description = $decryptedData['meta_description'];
                 $data->meta_keyword = $decryptedData['meta_keyword'];
@@ -641,10 +640,10 @@ class orgStructureController extends Controller
     {
         try {
 
-            $org = org_structure::where('id',$id)->first();
+            $org = org_structure::where('id',dDecrypt($id))->first();
 
             if (!empty($org)) {
-                org_structure::find($id)->delete();
+                org_structure::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

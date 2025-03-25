@@ -48,8 +48,12 @@ class faciliteController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
+           
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            $validator = Validator::make($decryptedData, [
+               'name' => 'required',
+             
             ]);
 
             if ($validator->fails()) {
@@ -58,7 +62,6 @@ class faciliteController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
             $data = new facilite;
             $data->name = $request->name;
             $data->status  = $request->status;
@@ -167,12 +170,16 @@ class faciliteController extends Controller
     {
         try {
            
-            $facilite = facilite::where('id',$id)->first();
+            
+            $facilite = facilite::where('id',dDecrypt($id))->first();
 
-            if (!empty($facilite)) {
+            if (!empty($menu)) {
 
-                $validator = Validator::make($request->all(), [
-                  'name' => 'required',
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+
+                $validator = Validator::make($decryptedData, [
+                    'name' => 'required',
+                   
                 ]);
 
                 if ($validator->fails()) {
@@ -180,9 +187,8 @@ class faciliteController extends Controller
                         'errors' => $validator->errors(),
                         'message' => 'Validation failed',
                     ], 422);
-                }           
-
-                $data = facilite::find($id);
+                }    
+                $data = facilite::find(dDecrypt($id));
                 $data->name = $request->name;
                 $data->status  = $request->status;
                 $data->order  = $request->order;
@@ -260,7 +266,7 @@ class faciliteController extends Controller
     {
         try {
         
-            $facilite = facilite::where('id',$id)->first();
+            $facilite = facilite::where('id',dDecrypt($id))->first();
             if (!empty($facilite)) {
                 facilite::find($id)->delete();
             } else {

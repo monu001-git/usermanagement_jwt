@@ -111,7 +111,6 @@ class userController extends Controller
         try {
        
             $userData = User::find(dDecrypt($id));
-            
             $user = dEncrypt($userData);
             if($user != null){
 
@@ -127,7 +126,6 @@ class userController extends Controller
                     'success', 'Record Not found',
                 ]);
             }
-
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
@@ -154,13 +152,9 @@ class userController extends Controller
     public function update(Request $request, $id)
     {
         try {
-        
-            $user = User::where('id',$id)->first();
-    
+            $user = User::where('id',dDecrypt($id))->first();
             if (!empty($user)) {
-
             $decryptedData = json_decode(dDecrypt($request->data), true);
-          
             $validator = Validator::make($decryptedData, [
                 'name' => 'required',
                 'email' => 'required|email|max:255|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i',
@@ -173,7 +167,7 @@ class userController extends Controller
                 ], 422);
             }
            
-            $data = User::find($id);
+            $data = User::find(dDecrypt($id));
             $data->name = $decryptedData['name'];
             $data->email  = $decryptedData['email'];
             $data->password  = $decryptedData['password'];
@@ -221,10 +215,10 @@ class userController extends Controller
     {
         try {
 
-            $user = User::where('id',$id)->first();
+            $user = User::where('id',dDecrypt($id))->first();
             if (!empty($user)) {
 
-                User::find($id)->delete();
+                User::find(dDecrypt($id))->delete();
 
             } else {
 

@@ -15,7 +15,8 @@ class masterController extends Controller
     
         try{
     
-            $parent = menu::all();
+            $parentData = menu::all();
+            $parent = dEncrypt($parentData);
             return response()->json([
                 'status' => 200,
                 'success', 'menu parent list fetch Successfully',
@@ -48,7 +49,8 @@ class masterController extends Controller
     
         try{
     
-            $page = page::all();
+            $pageData = page::all();
+            $page = dEncrypt($pageData);
             return response()->json([
                 'status' => 200,
                 'success', 'page list fetch Successfully',

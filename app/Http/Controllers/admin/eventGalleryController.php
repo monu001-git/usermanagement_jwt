@@ -210,7 +210,7 @@ class eventGalleryController extends Controller
 
             DB::beginTransaction();
            
-            $event = event::where('id',$id)->first();
+            $event = event::where('id',dDecrypt($id))->first();
 
             if (!empty($event)) {
 
@@ -229,7 +229,7 @@ class eventGalleryController extends Controller
                     ], 422);
                 } 
 
-                $data = event::find($id);
+                $data = event::find(dDecrypt($id));
                 $data->name = $decryptedData['name'];
                 $data->description  = $decryptedData['description'];
                 $data->event_date  = $decryptedData['event_date'];
@@ -330,7 +330,7 @@ class eventGalleryController extends Controller
     {
         try {
         
-            $event = event::where('id',$id)->first();
+            $event = event::where('id',dDecrypt($id))->first();
             if (!empty($event)) {
                 event::find($id)->delete();
             } else {

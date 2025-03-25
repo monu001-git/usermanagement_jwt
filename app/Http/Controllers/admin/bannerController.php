@@ -111,7 +111,7 @@ class bannerController extends Controller
     {
         try {
 
-            $banner = banner::find($id);
+            $banner = banner::find(dDecrypt($id));
             if($banner != null){
                 return response()->json([
                     'status' => 200,
@@ -151,7 +151,7 @@ class bannerController extends Controller
     {
         try {
            
-            $banner = banner::where('id',$id)->first();
+            $banner = banner::where('id',dDecrypt($id))->first();
 
             if (!empty($banner)) {
 
@@ -168,7 +168,7 @@ class bannerController extends Controller
                     ], 422);
                 }           
 
-                $data = banner::find($id);
+                $data = banner::find(dDecrypt($id));
                 $data->title = ucwords($request->title);
                 $data->description  = $request->description;
                 $data->url  = $request->url;
@@ -227,7 +227,7 @@ class bannerController extends Controller
     {
         try {
         
-            $banner = banner::where('id',$id)->first();
+            $banner = banner::where('id',dDecrypt($id))->first();
             if (!empty($banner)) {
                 banner::find($id)->delete();
             } else {

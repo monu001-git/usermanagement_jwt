@@ -159,7 +159,7 @@ class menuController extends Controller
     {
         try {
            
-            $menu = menu::where('id',$id)->first();
+            $menu = menu::where('id',dDecrypt($id))->first();
 
             if (!empty($menu)) {
 
@@ -179,7 +179,7 @@ class menuController extends Controller
                     ], 422);
                 }    
 
-                $data = menu::find($id);
+                $data = menu::find(dDecrypt($id));
                 $data->name = ucwords($decryptedData['name']);
                 $data->slug    = Str::slug($decryptedData['name'], "-");
     
@@ -239,9 +239,9 @@ class menuController extends Controller
     {
         try {
         
-            $menu = menu::where('id',$id)->first();
+            $menu = menu::where('id',dDecrypt($id))->first();
             if (!empty($menu)) {
-                menu::find($id)->delete();
+                menu::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

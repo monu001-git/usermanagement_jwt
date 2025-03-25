@@ -303,7 +303,7 @@ class pageController extends Controller
                  ], 422);
              }
      
-            $data = page::find($id);
+            $data = page::find(dDecrypt($id));
             $data->meta_title =  $decryptedData['meta_title'];
             $data->meta_description =  $decryptedData['meta_description'];
             $data->meta_keyword = $decryptedData['meta_keyword'];
@@ -514,9 +514,9 @@ class pageController extends Controller
     {
         try {
         
-            $page = page::where('id',$id)->first();
+            $page = page::where('id',dDecrypt($id))->first();
             if (!empty($page)) {
-                page::find($id)->delete();
+                page::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

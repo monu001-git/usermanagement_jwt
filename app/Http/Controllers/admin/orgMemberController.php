@@ -142,7 +142,7 @@ class orgMemberController extends Controller
             if($member != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'member Show Successfully',
+                    'success' => 'member Show Successfully',
                     'data' => $member
                 ]);
             }else{
@@ -178,7 +178,7 @@ class orgMemberController extends Controller
     {
         try {
            
-            $member = org_member::where('id',$id)->first();
+            $member = org_member::where('id',dDecrypt($id))->first();
 
             if (!empty($member)) {
 
@@ -195,7 +195,7 @@ class orgMemberController extends Controller
                     ], 422);
                 }           
 
-                $data = org_member::find($id);
+                $data = org_member::find(dDecrypt($id));
                 $data->name = $decryptedData['name'];
                 $data->status  = $decryptedData['status'];
                 $data->order  =  $decryptedData['order'];
@@ -277,9 +277,9 @@ class orgMemberController extends Controller
     {
         try {
         
-            $member = org_member::where('id',$id)->first();
+            $member = org_member::where('id',dDecrypt($id))->first();
             if (!empty($member)) {
-                org_member::find($id)->delete();
+                org_member::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

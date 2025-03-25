@@ -51,8 +51,10 @@ class testimonialController extends Controller
     {
         try {
 
-            $validator = Validator::make($request->all(), [
-               // 'title' => 'required',
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            $validator = Validator::make($decryptedData, [
+                'title' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -61,9 +63,6 @@ class testimonialController extends Controller
                     'message' => 'Validation failed',
                 ], 422);
             }
-            
-
-            $decryptedData = json_decode(dDecrypt($request->data), true);
 
             $data = new testimonial;
             $data->title = ucwords($decryptedData['title']);
@@ -144,7 +143,7 @@ class testimonialController extends Controller
             if($testimonial != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'testimonial Show Successfully',
+                    'success' => 'testimonial Show Successfully',
                     'data' => $testimonial
                 ]);
             }else{
@@ -179,25 +178,21 @@ class testimonialController extends Controller
     public function update(Request $request, $id)
     {
         try {
-           
-            $testimonial = testimonial::where('id',$id)->first();
-           
-            if (!empty($testimonial)) {
-
-                $validator = Validator::make($request->all(), [
-                  // 'title' => 'required',
-                ]);
-
-                // if ($validator->fails()) {
-                //     return response()->json([
-                //         'errors' => $validator->errors(),
-                //         'message' => 'Validation failed',
-                //     ], 422);
-                // }           
-
+                $testimonial = testimonial::where('id',dDecrypt($id))->first();
+                if (!empty($testimonial)) {
                 $decryptedData = json_decode(dDecrypt($request->data), true);
+                $validator = Validator::make($decryptedData, [
+                    'title' => 'required',
+                ]);
+    
+                if ($validator->fails()) {
+                    return response()->json([
+                        'errors' => $validator->errors(),
+                        'message' => 'Validation failed',
+                    ], 422);
+                }
 
-                $data = testimonial::find($id);
+                $data = testimonial::find(dDecrypt($id));
                 $data->title = ucwords($decryptedData['title']);
                 $data->testimonial  = $decryptedData['testimonial'];
                 $data->giver_name  =  $decryptedData['giver_name'];
@@ -235,8 +230,6 @@ class testimonialController extends Controller
                     $data->image = $newname;
                    }
                }
-    
-
 
                 $data->save();
             
@@ -281,11 +274,10 @@ class testimonialController extends Controller
     public function destroy($id)
     {
         try {
-            return $id;
-        
-            $testimonial = testimonial::where('id',$id)->first();
+           
+            $testimonial = testimonial::where('id',dDecrypt($id))->first();
             if (!empty($testimonial)) {
-                testimonial::find($id)->delete();
+                testimonial::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

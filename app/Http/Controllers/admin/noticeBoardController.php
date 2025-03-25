@@ -172,62 +172,73 @@ class noticeBoardController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-        $validator = Validator::make($request->all(), [
-            // 'title' => 'required|unique:notice_boards,title',
-            // 'order' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+     
+            $noticeBoardData = notice_board::where('id',dDecrypt($id))->first();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-                'message' => 'Validation failed',
-            ], 422);
-        }
+            if (!empty($noticeBoardData)) {
 
-       
-        $decryptedData = json_decode(dDecrypt($request->updatedData), true);
+                $decryptedData = json_decode(dDecrypt($request->data), true);
+          
+                $validator = Validator::make($decryptedData, [
+                    'title' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'errors' => $validator->errors(),
+                        'message' => 'Validation failed',
+                    ], 422);
+                }          
  
-        $data = notice_board:: find($id);
-        $data->title = ucwords($decryptedData['title']);
-        $data->date  = $decryptedData['date'];
-        $data->publiser  = 'admin' ;
-        $data->order  =  $decryptedData['order'];
-        $data->status  = $decryptedData['status'];
+                $data = notice_board:: find(dDecrypt($id));
+                $data->title = ucwords($decryptedData['title']);
+                $data->date  = $decryptedData['date'];
+                $data->publiser  = 'admin' ;
+                $data->order  =  $decryptedData['order'];
+                $data->status  = $decryptedData['status'];
 
-        $path = public_path('uploads');
-        if(!empty($decryptedData['pdf']) ) {
-            $base64Image = $decryptedData['pdf'];
-           if($base64Image != null){
+                $path = public_path('uploads');
+                if(!empty($decryptedData['pdf']) ) {
+                    $base64Image = $decryptedData['pdf'];
+                if($base64Image != null){
 
-            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-            $image = base64_decode($imageData);
-    
-            $finfo = finfo_open();
-            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-            finfo_close($finfo);
-    
-            $extension = '';
-            if ($mimeType == 'application/pdf') {
-                $extension = 'pdf';
-            } else {
-                return response()->json(['error' => 'Unsupported image format'], 400);
-            }
-            $newname = time() . rand(10, 99) . '.' . $extension;
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
-            }
-            file_put_contents($path . '/' . $newname, $image);
-            $data->pdf = $newname;
-           }
-        }
+                    $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                    $image = base64_decode($imageData);
+            
+                    $finfo = finfo_open();
+                    $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                    finfo_close($finfo);
+            
+                    $extension = '';
+                    if ($mimeType == 'application/pdf') {
+                        $extension = 'pdf';
+                    } else {
+                        return response()->json(['error' => 'Unsupported image format'], 400);
+                    }
+                    $newname = time() . rand(10, 99) . '.' . $extension;
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    file_put_contents($path . '/' . $newname, $image);
+                    $data->pdf = $newname;
+                }
+                }
 
-        $data->save();
+            $data->save();
 
             return response()->json([
                 'status' => 200,
-                'message' => 'Data Save Successfully!',
+                'message' => 'Data Update Successfully!!!!',
             ]);
+        }else{
+
+            return response()->json([
+                'message' => 'You are trying to perform an unethical process. Your request is failed.',
+                'status' => false,
+            ], 400); 
+
+        }
+
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
@@ -257,10 +268,10 @@ class noticeBoardController extends Controller
     {
         try {
 
-            $noticeBoard = notice_board::where('id', $id)->first();
+            $noticeBoard = notice_board::where('id', dDecrypt($id))->first();
 
             if (!empty($noticeBoard)) {
-                notice_board::find($id)->delete();
+                notice_board::find(dDecrypt($id))->delete();
             } else {
 
                 return response()->json([

@@ -176,7 +176,7 @@ class studentController extends Controller
     {
         try {
            
-            $student = student::where('id',$id)->first();
+            $student = student::where('id',dDecrypt($id))->first();
 
             if (!empty($student)) {
 
@@ -193,7 +193,7 @@ class studentController extends Controller
                     ], 422);
                 }            
 
-                $data = student::find($id);
+                $data = student::find(dDecrypt($id));
                 $data->name = $decryptedData['name'];
                 $data->status  = $decryptedData['status'];
                 $data->order  = $decryptedData['order'];
@@ -273,9 +273,9 @@ class studentController extends Controller
     {
         try {
         
-            $student = student::where('id',$id)->first();
+            $student = student::where('id',dDecrypt($id))->first();
             if (!empty($student)) {
-                student::find($id)->delete();
+                student::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',
