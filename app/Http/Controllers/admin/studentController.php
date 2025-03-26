@@ -70,6 +70,9 @@ class studentController extends Controller
             $data->name = $decryptedData['name'];
             $data->status  = $decryptedData['status'];
             $data->order  = $decryptedData['order'];
+            $data->class  = $decryptedData['class'];
+            $data->dob  = $decryptedData['dob'];
+            $data->section  = $decryptedData['section'];
 
       
             $path = public_path('uploads/student');
@@ -197,6 +200,9 @@ class studentController extends Controller
                 $data->name = $decryptedData['name'];
                 $data->status  = $decryptedData['status'];
                 $data->order  = $decryptedData['order'];
+                $data->class  = $decryptedData['class'];
+                $data->dob  = $decryptedData['dob'];
+                $data->section  = $decryptedData['section'];
     
                 $path = public_path('uploads/student');
                 if ($decryptedData['image']) {

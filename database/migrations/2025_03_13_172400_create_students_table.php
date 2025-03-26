@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name',255)->nullable();
             $table->string('image',255)->nullable();
+            $table->string('class',255)->nullable();
+            $table->string('section',255)->nullable();
+            $table->string('dob',255)->nullable();
             $table->integer('order')->nullable()->default(0);
             $table->boolean('status')->default(0)->nullable();
             $table->softDeletes();
