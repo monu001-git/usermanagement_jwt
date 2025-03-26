@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class Achievement extends Model
+use Illuminate\Database\Eloquent\SoftDeletes;
+class achievement extends Model
 {
-    protected $fillable = ['name', 'description', 'title'];
+    use SoftDeletes;
+    
+    protected $fillable = ['title', 'description'];
 
     public function images()
     {
-        return $this->hasMany(AchievementImage::class);
+        return $this->hasMany(achievementImage::class);
     }
+
 }

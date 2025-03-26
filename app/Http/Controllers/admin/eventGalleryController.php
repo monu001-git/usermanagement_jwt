@@ -83,7 +83,6 @@ class eventGalleryController extends Controller
                 if ($imageContents) {
                     $imageContentss = new event_image();
                     $imageContentss->image_name = $imageContents['image_name'];
-                    $imageContentss->image_name = $imageContents['image_name'];
                     $path = public_path('uploads/event');
                     if(!empty($imageContents['image_path']) ) {
                         $base64Image = $imageContents['image_path'];
@@ -216,7 +215,6 @@ class eventGalleryController extends Controller
 
                 $decryptedData = json_decode(dDecrypt($request->data), true);
 
-                return   $decryptedData;
                 $validator = Validator::make($decryptedData, [
                     'name' => 'required',
                     'order' => 'required',
@@ -239,7 +237,7 @@ class eventGalleryController extends Controller
            
                 if(!empty($decryptedData['imageContent'])){
                     foreach ($decryptedData['imageContent'] as $index => $imageContents) {
-                        return $imageContents;
+
                         if ($imageContents['imageId']) {
                             $imageContentss = event_image::find($imageContents['imageId']);
                         } else {
@@ -332,7 +330,7 @@ class eventGalleryController extends Controller
         
             $event = event::where('id',dDecrypt($id))->first();
             if (!empty($event)) {
-                event::find($id)->delete();
+                event::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

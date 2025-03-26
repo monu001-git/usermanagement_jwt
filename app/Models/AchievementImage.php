@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class AchievementImage extends Model
+use Illuminate\Database\Eloquent\SoftDeletes;
+class achievementImage extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = ['achievement_id', 'image_path'];
 

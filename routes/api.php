@@ -14,6 +14,7 @@ use App\Http\Controllers\admin\commonController;
 use App\Http\Controllers\admin\masterController;
 use App\Http\Controllers\admin\noticeBoardController;
 use App\Http\Controllers\admin\testimonialController;
+use App\Http\Controllers\admin\achivementController;
 use App\Http\Controllers\admin\studentController;
 use App\Http\Controllers\admin\eventGalleryController;
 use App\Http\Controllers\admin\faciliteController;
@@ -36,6 +37,7 @@ use App\http\Middleware\logMiddleware;
         Route::resource('event',eventGalleryController::class);
         Route::resource('students',studentController::class);
         Route::resource('notice-boards',noticeBoardController::class);
+        Route::resource('achievement',achivementController::class);
         Route::resource('testimonials',testimonialController::class);
         Route::resource('facilites',faciliteController::class);
         
