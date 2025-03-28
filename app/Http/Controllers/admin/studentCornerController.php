@@ -4,26 +4,26 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\event;
-use App\Models\event_image;
+use App\Models\student_corner;
+use App\Models\student_corner_image;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 
-class eventGalleryController extends Controller
+class studentCornerController extends Controller
 {
     public function index(Request $request)
     {
         try {
 
-            $eventData = event::orderBy('id','desc')->get();
-            $event = dEncrypt($eventData);
+            $studentCornerData = student_corner::orderBy('id','desc')->get();
+            $studentCorner = dEncrypt($studentCornerData);
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
-                'data' => $event
+                'data' => $studentCorner
             ]);
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
@@ -46,8 +46,6 @@ class eventGalleryController extends Controller
             ], 500);
         }
     }
-
-  
     public function store(Request $request)
     {
         try {
@@ -58,46 +56,41 @@ class eventGalleryController extends Controller
           
 
             $validator = Validator::make($decryptedData, [
-                'name' => 'required',
+                'title' => 'required',
                 'order' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
+                    'status' =>422,
                     'errors' => $validator->errors(),
                     'message' => 'Validation failed',
-                ], 422);
+                ]);
             }
 
             
-            $data = new event;
-            $data->name = $decryptedData['name'];
+            $data = new student_corner;
+            $data->title = $decryptedData['title'];
             $data->description  = $decryptedData['description'];
-            $data->event_date  = $decryptedData['event_date'];
             $data->status  =$decryptedData['status'];
             $data->order  = $decryptedData['order'];
             $data->save();
 
-            if(!empty($decryptedData['images'])){
-                  
-                foreach ($decryptedData['images'] as $index => $imageContents) {
-
-                    $imageContentss = new event_image();
-                    $imageContentss->image_name =  "image$index";
-
-                    $path = public_path('uploads/event');
-                    if(!empty($imageContents) ) {
-                        $base64Image = $imageContents;
-
+            if(!empty($decryptedData['imageContent'])){
+                foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+                if ($imageContents) {
+                    $imageContentss = new student_corner_image();
+                    $imageContentss->image_title = $imageContents['image_title'];
+                    $path = public_path('uploads/studentCorner');
+                    if(!empty($imageContents['image_path']) ) {
+                        $base64Image = $imageContents['image_path'];
                         if($base64Image != null){
-        
                         $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                     
                         $image = base64_decode($imageData);
                         $finfo = finfo_open();
                         $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
                         finfo_close($finfo);
-                
+            
                         $extension = '';
                         if ($mimeType == 'image/jpeg') {
                             $extension = 'jpg';
@@ -116,10 +109,11 @@ class eventGalleryController extends Controller
                         $imageContentss->image_path = $newname;
                         }
                     }
-                    $imageContentss->event_id  = $data->id;
+                    $imageContentss->student_corner_id  = $data->id;
                     $imageContentss->save();
+    
+                  }
                 }
-
             }
 
             DB::commit(); 
@@ -149,35 +143,33 @@ class eventGalleryController extends Controller
             ], 500);
         }   
     }
-
-
     public function show($id)
     {
         try {
 
-            $eventData = event::find(dDecrypt($id));
+            $studentCornerData = student_corner::find(dDecrypt($id));
 
-            if ($eventData != null) {
-                   $eventImages = DB::table('event_images')
-                    ->where('event_id', $eventData->id)
+            if ($studentCornerData != null) {
+                   $studentCornerImage = DB::table('student_corner_images')
+                    ->where('student_corner_id', $studentCornerData->id)
                     ->whereNull('deleted_at')
                     ->get();
                
-                $eventComplete = [
-                    'eventData' => $eventData,
-                    'eventImages' => $eventImages,
+                $studentCornerComplete = [
+                    'studentCornerData' => $studentCornerData,
+                    'studentCornerImage' => $achiestudentCornerImagevementImage,
                 ];
             } else {
-                $eventComplete = [
-                    'eventData' => null,
-                    'eventImages' => [],
+                $studentCornerComplete = [
+                    'achievementData' => null,
+                    'achievementImage' => [],
                 ];
             }
 
             return response()->json([
                 'status' => 200,
-                'success'=> 'Event Gallery Show Successfully',
-                'data' => $eventComplete
+                'success'=> 'Student Corner Show Successfully',
+                'data' => $studentCornerComplete
             ]);
          
 
@@ -202,49 +194,53 @@ class eventGalleryController extends Controller
             ], 500);
         }
     }
-
     public function update(Request $request, $id)
     {
         try {
 
             DB::beginTransaction();
            
-            $event = event::where('id',dDecrypt($id))->first();
+            $studentCorner = student_corner::where('id',dDecrypt($id))->first();
 
-            if (!empty($event)) {
+            if (!empty($studentCorner)) {
 
                 $decryptedData = json_decode(dDecrypt($request->data), true);
 
                 $validator = Validator::make($decryptedData, [
-                    'name' => 'required',
+                    'title' => 'required',
                     'order' => 'required',
                 ]);
 
                 if ($validator->fails()) {
                     return response()->json([
+                        'stutus'=>422,
                         'errors' => $validator->errors(),
                         'message' => 'Validation failed',
-                    ], 422);
+                    ]);
                 } 
 
-                $data = event::find(dDecrypt($id));
-                $data->name = $decryptedData['name'];
+                $data = student_corner::find(dDecrypt($id));
+                $data->title = $decryptedData['title'];
                 $data->description  = $decryptedData['description'];
-                $data->event_date  = $decryptedData['event_date'];
                 $data->status  =$decryptedData['status'];
                 $data->order  = $decryptedData['order'];
                 $data->save();
            
-                if(!empty($decryptedData['images'])){
-                  
-                    foreach ($decryptedData['images'] as $index => $imageContents) {
-
-                        $imageContentss = new event_image();
-                        $imageContentss->image_name =  "image$index";
+                if(!empty($decryptedData['imageContent'])){
+                    foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+    
+                        if ($imageContents['imageId']) {
+                            $imageContentss = student_corner_image::find($imageContents['imageId']);
+                        } else {
+                            $imageContentss = new student_corner_image();
+                        }
+                    
+                        $imageContentss->image_title = $imageContents['image_title'];
 
                         $path = public_path('uploads/event');
-                        if(!empty($imageContents) ) {
-                            $base64Image = $imageContents;
+                        if(!empty($imageContents['image_path']) ) {
+                            $base64Image = $imageContents['image_path'];
+
 
                             if($base64Image != null){
             
@@ -273,7 +269,7 @@ class eventGalleryController extends Controller
                             $imageContentss->image_path = $newname;
                             }
                         }
-                        $imageContentss->event_id  = $data->id;
+                        $imageContentss->student_corner_id  = $data->id;
                         $imageContentss->save();
                     }
 
@@ -317,15 +313,13 @@ class eventGalleryController extends Controller
             ], 500);
         }    
     }
-
-   
     public function destroy($id)
     {
         try {
         
-            $event = event::where('id',dDecrypt($id))->first();
-            if (!empty($event)) {
-                event::find(dDecrypt($id))->delete();
+            $studentCorner = student_corner::where('id',dDecrypt($id))->first();
+            if (!empty($studentCorner)) {
+                student_corner::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

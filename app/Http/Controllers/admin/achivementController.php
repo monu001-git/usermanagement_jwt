@@ -46,8 +46,6 @@ class achivementController extends Controller
             ], 500);
         }
     }
-
-  
     public function store(Request $request)
     {
         try {
@@ -145,8 +143,6 @@ class achivementController extends Controller
             ], 500);
         }   
     }
-
-
     public function show($id)
     {
         try {
@@ -198,7 +194,6 @@ class achivementController extends Controller
             ], 500);
         }
     }
-
     public function update(Request $request, $id)
     {
         try {
@@ -318,8 +313,6 @@ class achivementController extends Controller
             ], 500);
         }    
     }
-
-   
     public function destroy($id)
     {
         try {

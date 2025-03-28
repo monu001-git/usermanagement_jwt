@@ -18,6 +18,7 @@ use App\Http\Controllers\admin\achivementController;
 use App\Http\Controllers\admin\studentController;
 use App\Http\Controllers\admin\eventGalleryController;
 use App\Http\Controllers\admin\faciliteController;
+use App\Http\Controllers\admin\studentCornerController;
 use App\Http\Controllers\homeController;
 use App\http\Middleware\logMiddleware;
 
@@ -38,6 +39,7 @@ use App\http\Middleware\logMiddleware;
         Route::resource('students',studentController::class);
         Route::resource('notice-boards',noticeBoardController::class);
         Route::resource('achievement',achivementController::class);
+        Route::resource('student-corner',studentCornerController::class);
         Route::resource('testimonials',testimonialController::class);
         Route::resource('facilites',faciliteController::class);
         
