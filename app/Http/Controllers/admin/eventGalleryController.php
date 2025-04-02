@@ -8,6 +8,7 @@ use App\Models\event;
 use App\Models\event_image;
 use DB;
 use Hash;
+use Str;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
@@ -72,6 +73,7 @@ class eventGalleryController extends Controller
             
             $data = new event;
             $data->name = $decryptedData['name'];
+            $data->slug    = Str::slug($decryptedData['name'], "-");
             $data->description  = $decryptedData['description'];
             $data->event_date  = $decryptedData['event_date'];
             $data->status  =$decryptedData['status'];
@@ -229,6 +231,7 @@ class eventGalleryController extends Controller
 
                 $data = event::find(dDecrypt($id));
                 $data->name = $decryptedData['name'];
+                $data->slug    = Str::slug($decryptedData['name'], "-");
                 $data->description  = $decryptedData['description'];
                 $data->event_date  = $decryptedData['event_date'];
                 $data->status  =$decryptedData['status'];

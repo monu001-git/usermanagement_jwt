@@ -76,21 +76,21 @@ class achivementController extends Controller
             $data->order  = $decryptedData['order'];
             $data->save();
 
-            if(!empty($decryptedData['imageContent'])){
-                foreach ($decryptedData['imageContent'] as $index => $imageContents) {
-                if ($imageContents) {
+            
+            if(!empty($decryptedData['images'])){
+                foreach ($decryptedData['images'] as $index => $imageContents) {
                     $imageContentss = new achievementImage();
-                    $imageContentss->image_title = $imageContents['image_title'];
+                    $imageContentss->image_title = "image$index";
                     $path = public_path('uploads/achievement');
-                    if(!empty($imageContents['image_path']) ) {
-                        $base64Image = $imageContents['image_path'];
+                    if(!empty($imageContents) ) {
+                        $base64Image = $imageContents;
                         if($base64Image != null){
                         $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                         $image = base64_decode($imageData);
                         $finfo = finfo_open();
                         $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
                         finfo_close($finfo);
-            
+                
                         $extension = '';
                         if ($mimeType == 'image/jpeg') {
                             $extension = 'jpg';
@@ -111,10 +111,10 @@ class achivementController extends Controller
                     }
                     $imageContentss->achievement_id  = $data->id;
                     $imageContentss->save();
-    
-                  }
                 }
+
             }
+
 
             DB::commit(); 
     
@@ -226,21 +226,19 @@ class achivementController extends Controller
                 $data->order  = $decryptedData['order'];
                 $data->save();
            
-                if(!empty($decryptedData['imageContent'])){
-                    foreach ($decryptedData['imageContent'] as $index => $imageContents) {
-    
-                        if ($imageContents['imageId']) {
-                            $imageContentss = achievementImage::find($imageContents['imageId']);
-                        } else {
-                            $imageContentss = new achievementImage();
-                        }
-                    
-                        $imageContentss->image_title = $imageContents['image_title'];
+             
 
-                        $path = public_path('uploads/event');
-                        if(!empty($imageContents['image_path']) ) {
-                            $base64Image = $imageContents['image_path'];
+                if(!empty($decryptedData['images'])){
+                  
+                    foreach ($decryptedData['images'] as $index => $imageContents) {
 
+                        $imageContentss = new achievementImage();
+                        $imageContentss->image_title =  "image$index";
+             
+
+                        $path = public_path('uploads/achievement');
+                        if(!empty($imageContents) ) {
+                            $base64Image = $imageContents;
 
                             if($base64Image != null){
             

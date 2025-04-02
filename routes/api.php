@@ -57,9 +57,11 @@ use App\http\Middleware\logMiddleware;
 Route::controller(homeController::class)->group(function () {
     Route::get('header-menu', 'headerMenuSection');
     Route::get('event-gallery', 'eventGallerySection');
-    Route::get('org-data', 'headerMenuSection');
+    Route::get('org-data','orgDataSection');
     Route::get('footer-menu', 'footerMenuSection');
     Route::get('testimonial-data', 'testimonialSection');
+    Route::Post('noticeboard-pdf', 'noticeBoardPdf');
     Route::get('noticeboard-data', 'noticeBoardSection');
     Route::get('student-data','studentSection');
+    Route::get('achievement-data','achievementSection');
 });

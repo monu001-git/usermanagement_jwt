@@ -49,7 +49,7 @@ class homeController extends Controller
     public function headerMenuSection()
     {
         try{
-            $menus = DB::table('menus')->where('menu_place','header')->where('status', 1)->whereNull('deleted_at')->orderBy('order', 'desc')->get(); 
+            $menus = DB::table('menus')->where('menu_place','header')->where('status', 1)->whereNull('deleted_at')->orderBy('order','asc')->get(); 
             $menuTree = $this->getMenuTree($menus, 0);
 
             return response()->json([
@@ -250,6 +250,7 @@ class homeController extends Controller
             $testimonialData = DB::table('testimonials')
             ->where('status', 1)
             ->orderBy('order', 'desc')
+            ->whereNull('deleted_at')
             ->get();
         
             $testimonial = dEncrypt($testimonialData);
@@ -291,6 +292,7 @@ class homeController extends Controller
             $studentData = DB::table('students')
             ->where('status', 1)
             ->orderBy('order', 'desc')
+            ->whereNull('deleted_at')
             ->get();
         
             $student = dEncrypt($studentData);
@@ -322,5 +324,98 @@ class homeController extends Controller
         }
 
     }
+
+
+
+    public function achievementSection(){
+        try{
+
+            $achievementData = DB::table('achievements')
+            ->whereNull('deleted_at')
+            ->where('status', 1)
+            ->orderBy('order', 'desc')
+            ->get(); // Fetch multiple records
+        
+        if ($achievementData->isNotEmpty()) {
+            // Iterate over each achievement and attach its images
+            foreach ($achievementData as $achievement) {
+                $achievement->achievementImage = DB::table('achievement_images')
+                    ->where('achievement_id', $achievement->id)
+                    ->whereNull('deleted_at')
+                    ->first();
+            }
+        } 
+        
+        return response()->json([
+            'status' => 200,
+            'message' => 'Data retrieved successfully!',
+            'data' => $achievementData
+        ]);
+        
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+           return response()->json([
+               'status' => 500,
+               'message' => 'Database error occurred.',
+               'error' => $e->getMessage()
+           ], 500);
+       } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+           return response()->json([
+               'status' => 500,
+               'message' => 'An error occurred while fetching the data.',
+               'error' => $e->getMessage()
+           ], 500);
+       } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+           return response()->json([
+               'status' => 500,
+               'message' => 'An unexpected error occurred.',
+               'error' => $e->getMessage()
+           ], 500);
+       }
+
+   }
+
+   public function noticeBoardPdf(Request $request){
+    try{
+
+        $decryptedData = json_decode(dDecrypt($request->data), true);
+
+
+            $noticeBoard = DB::table('notice_boards')
+                ->where('id', $decryptedData)
+                ->orderBy('order', 'desc')
+                ->whereNull('deleted_at')
+                ->first();
+
+         //   $noticeBoardData = dEncrypt($noticeBoard);
+        
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data retrieved successfully!',
+                'data'=>$noticeBoard
+            ]);
+  
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+   }
+    
 
 }
