@@ -64,4 +64,8 @@ Route::controller(homeController::class)->group(function () {
     Route::get('noticeboard-data', 'noticeBoardSection');
     Route::get('student-data','studentSection');
     Route::get('achievement-data','achievementSection');
+
+
+    Route::post('page-data','getMenuPageSection');
+
 });
