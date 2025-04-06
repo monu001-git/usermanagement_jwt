@@ -17,7 +17,7 @@ class faciliteController extends Controller
     {
         try {
 
-            $facilite = facilite::orderBy('id','asc')->get();
+            $facilite = facilite::orderBy('id','desc')->get();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data retrieved successfully!',
@@ -47,12 +47,10 @@ class faciliteController extends Controller
     public function store(Request $request)
     {
         try {
-
-           
             $decryptedData = json_decode(dDecrypt($request->data), true);
-
+ 
             $validator = Validator::make($decryptedData, [
-               'name' => 'required',
+              // 'name' => 'required',
              
             ]);
 
@@ -63,14 +61,14 @@ class faciliteController extends Controller
                 ], 422);
             }
             $data = new facilite;
-            $data->name = $request->name;
-            $data->status  = $request->status;
-            $data->order  = $request->order;
+            $data->title =  $decryptedData['title'];
+            $data->description =  $decryptedData['description'];
+            $data->status  =  $decryptedData['status'];
+            $data->order  = $decryptedData['order'];
 
-      
             $path = public_path('uploads/facilite');
-            if ($request->has('image')) {
-               $base64Image = $request->input('image');
+            if(!empty($decryptedData['image']) ) {
+               $base64Image = $decryptedData['image'];
                if($base64Image != null){
     
                 $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
@@ -97,10 +95,52 @@ class faciliteController extends Controller
                 file_put_contents($path . '/' . $newname, $image);
                 $data->image = $newname;
                }
-           }
-
+            }
 
             $data->save();
+
+            if($decryptedData['imageContent'] != '' && $decryptedData['imageContent'] != null){
+                foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+                    if ($imageContents) {
+                    $imageContentss = new page_image();
+                    $imageContentss->image_title = $imageContents['image_title'];;
+    
+                    $path = public_path('uploads/page');
+                    if(!empty($imageContents['page_images']) ) {
+                       $base64Image = $imageContents['page_images'];
+                       if($base64Image != null){
+            
+                        $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                        $image = base64_decode($imageData);
+                
+                        $finfo = finfo_open();
+                        $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                        finfo_close($finfo);
+                
+                        $extension = '';
+                        if ($mimeType == 'image/jpeg') {
+                            $extension = 'jpg';
+                        } elseif ($mimeType == 'image/png') {
+                            $extension = 'png';
+                        } elseif ($mimeType == 'image/gif') {
+                            $extension = 'gif';
+                        } else {
+                            return response()->json(['error' => 'Unsupported image format'], 400);
+                        }
+                        $newname = time() . rand(10, 99) . '.' . $extension;
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $newname, $image);
+                        $imageContentss->page_images = $newname;
+                       }
+                    }
+
+                    $imageContentss->page_id = $data->id;
+                    $imageContentss->save();
+                    }
+                }
+            }
 
             return response()->json([
                 'status' => 200,
@@ -135,7 +175,7 @@ class faciliteController extends Controller
             if($facilite != null){
                 return response()->json([
                     'status' => 200,
-                    'success', 'Facilite Show Successfully',
+                    'success' =>'Facilites Show Successfully',
                     'data' => $facilite
                 ]);
             }else{
@@ -188,16 +228,18 @@ class faciliteController extends Controller
                         'message' => 'Validation failed',
                     ], 422);
                 }    
-                $data = facilite::find(dDecrypt($id));
-                $data->name = $request->name;
-                $data->status  = $request->status;
-                $data->order  = $request->order;
-                      
-                $path = public_path('uploads/facilite');
-                if ($request->has('image')) {
-                $base64Image = $request->input('image');
-                if($base64Image != null){
 
+                $data = facilite::find(dDecrypt($id));
+                $data->title =  $decryptedData['title'];
+                $data->description =  $decryptedData['description'];
+                $data->status  =  $decryptedData['status'];
+                $data->order  = $decryptedData['order'];
+
+                $path = public_path('uploads/facilite');
+                if(!empty($decryptedData['image']) ) {
+                   $base64Image = $decryptedData['image'];
+                   if($base64Image != null){
+        
                     $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
                     $image = base64_decode($imageData);
             
@@ -221,9 +263,9 @@ class faciliteController extends Controller
                     }
                     file_put_contents($path . '/' . $newname, $image);
                     $data->image = $newname;
+                   }
                 }
-            }
-
+    
                 $data->save();
             
                 return response()->json([
@@ -268,7 +310,7 @@ class faciliteController extends Controller
         
             $facilite = facilite::where('id',dDecrypt($id))->first();
             if (!empty($facilite)) {
-                facilite::find($id)->delete();
+                facilite::find(dDecrypt($id))->delete();
             } else {
                return response()->json([
                 'message' => 'You are trying to perform an unethical process. Your request is failed.',

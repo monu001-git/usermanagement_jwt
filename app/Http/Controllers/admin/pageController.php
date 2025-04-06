@@ -77,6 +77,7 @@ class pageController extends Controller
             $data->meta_keyword = $decryptedData['meta_keyword'];
             $data->status  = $decryptedData['status'];
             $data->order  =  $decryptedData['order'];
+            
             $path = public_path('uploads/page');
             if(!empty($decryptedData['banner']) ) {
                $base64Image = $decryptedData['banner'];
