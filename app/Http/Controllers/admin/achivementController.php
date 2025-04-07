@@ -54,10 +54,11 @@ class achivementController extends Controller
 
             $decryptedData = json_decode(dDecrypt($request->data), true);
           
+           
 
             $validator = Validator::make($decryptedData, [
-                'title' => 'required',
-                'order' => 'required',
+               'title' => 'required',
+               'order' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -74,6 +75,40 @@ class achivementController extends Controller
             $data->description  = $decryptedData['description'];
             $data->status  =$decryptedData['status'];
             $data->order  = $decryptedData['order'];
+
+
+            $path = public_path('uploads/achievement');
+            if(!empty($decryptedData['image']) ) {
+               $base64Image = $decryptedData['image'];
+               if($base64Image != null){
+    
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $image = base64_decode($imageData);
+        
+                $finfo = finfo_open();
+                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                finfo_close($finfo);
+        
+                $extension = '';
+                if ($mimeType == 'image/jpeg') {
+                    $extension = 'jpg';
+                } elseif ($mimeType == 'image/png') {
+                    $extension = 'png';
+                } elseif ($mimeType == 'image/gif') {
+                    $extension = 'gif';
+                } else {
+                    return response()->json(['error' => 'Unsupported image format'], 400);
+                }
+                $newname = time() . rand(10, 99) . '.' . $extension;
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                file_put_contents($path . '/' . $newname, $image);
+                $data->image = $newname;
+               }
+            }
+
+
             $data->save();
 
             
@@ -224,6 +259,39 @@ class achivementController extends Controller
                 $data->description  = $decryptedData['description'];
                 $data->status  =$decryptedData['status'];
                 $data->order  = $decryptedData['order'];
+
+                
+            $path = public_path('uploads/achievement');
+            if(!empty($decryptedData['image']) ) {
+               $base64Image = $decryptedData['image'];
+               if($base64Image != null){
+    
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $image = base64_decode($imageData);
+        
+                $finfo = finfo_open();
+                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                finfo_close($finfo);
+        
+                $extension = '';
+                if ($mimeType == 'image/jpeg') {
+                    $extension = 'jpg';
+                } elseif ($mimeType == 'image/png') {
+                    $extension = 'png';
+                } elseif ($mimeType == 'image/gif') {
+                    $extension = 'gif';
+                } else {
+                    return response()->json(['error' => 'Unsupported image format'], 400);
+                }
+                $newname = time() . rand(10, 99) . '.' . $extension;
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                file_put_contents($path . '/' . $newname, $image);
+                $data->image = $newname;
+               }
+            }
+
                 $data->save();
            
              
