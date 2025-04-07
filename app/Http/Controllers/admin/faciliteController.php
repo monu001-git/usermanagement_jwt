@@ -48,11 +48,11 @@ class faciliteController extends Controller
     }
     public function store(Request $request)
     {
-        try {
+        // try {
             $decryptedData = json_decode(dDecrypt($request->data), true);
 
-            $decryptedData;
  
+
             $validator = Validator::make($decryptedData, [
               // 'name' => 'required',
              
@@ -118,7 +118,7 @@ class faciliteController extends Controller
                       foreach ($imageContents['imageMulitple'] as $index => $imageMulitpless) {
                         $imageMulitples = new facilites_image();
                         $imageMulitples->facilitesimage_title = "image$index";
-                        $imageMulitples->facilites_id = $data->id;
+                        $imageMulitples->facilites_details_id = $imageContentss->id;
 
                         $path = public_path('uploads/facilites');
                         if(!empty($imageMulitpless) ) {
@@ -164,25 +164,25 @@ class faciliteController extends Controller
                 'message' => 'Data Save Successfully!',
             ]);
 
-        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'Database error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An error occurred while fetching the data.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An unexpected error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        }   
+        // } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'Database error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An error occurred while fetching the data.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+        //     return response()->json([
+        //         'status' => 500,
+        //         'message' => 'An unexpected error occurred.',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // }   
     }
     public function show($id)
     {

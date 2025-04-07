@@ -506,45 +506,38 @@ class homeController extends Controller
     {
      try {
  
-            $facilites = DB::table('facilites')
-                ->where('status',1)
-                ->orderByDesc('created_at') 
-                ->first();
-
-            if ($facilites !== null) {
-
-                 $facilitesContent = DB::table('facilites_details')
-                     ->where('facilites_id',$facilites->id)
-                    //  ->whereNull('deleted_at')
-                     ->first();
- 
-                 $facilitesImages = DB::table('facilites_images')
-                     ->where('facilites_id',$facilites->id)
-                    //  ->whereNull('deleted_at')
-                     ->get();
- 
-             
-                 if ($facilitesContent !== null) {
-                     $facilites->content = $facilitesContent; 
-                 }
- 
-                 if ($facilitesImages->isNotEmpty()) {
-                    $facilites->images = $facilitesImages;
-                 }
- 
- 
-                 return response()->json([
-                     'status' => 200,
-                     'message' => 'Data retrieved successfully!',
-                     'data' => $facilites 
-                 ]);
-
-            } else {
-                return response()->json([
-                    'status' => 503,
-                    'message' => 'Page Coming soon',
-                ]);
-            }
+        $facilites = DB::table('facilites')
+        ->where('status', 1)
+        ->orderByDesc('created_at')
+        ->first();
+    
+    if ($facilites !== null) {
+        $facilitesContent = DB::table('facilites_details')
+            ->where('facilites_id', $facilites->id)
+            ->get();
+    
+        // Attach images to each content item
+        $facilitesContent = $facilitesContent->map(function ($item) {
+            $item->images = DB::table('facilites_images')
+                ->where('facilites_details_id', $item->id)
+                ->get();
+            return $item;
+        });
+    
+        $facilites->content = $facilitesContent;
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Data retrieved successfully!',
+            'data' => $facilites
+        ]);
+    }
+    
+    return response()->json([
+        'status' => 404,
+        'message' => 'No data found!'
+    ]);
+    
        
      } catch (\PDOException $e) {
          \Log::error('A PDOException occurred: ' . $e->getMessage());
