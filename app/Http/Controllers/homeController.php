@@ -420,7 +420,7 @@ class homeController extends Controller
  
    public function getMenuPageSection(Request $request)
    {
-    // try {
+    try {
 
         $decryptedData = json_decode(dDecrypt($request->data), true);
 
@@ -477,29 +477,102 @@ class homeController extends Controller
             ]);
         }
 
-    // } catch (\PDOException $e) {
-    //     \Log::error('A PDOException occurred: ' . $e->getMessage());
-    //     return response()->json([
-    //         'status' => 500,
-    //         'message' => 'Database error occurred.',
-    //         'error' => $e->getMessage()
-    //     ], 500);
-    // } catch (\Exception $e) {
-    //     \Log::error('An exception occurred: ' . $e->getMessage());
-    //     return response()->json([
-    //         'status' => 500,
-    //         'message' => 'An error occurred while fetching the data.',
-    //         'error' => $e->getMessage()
-    //     ], 500);
-    // } catch (\Throwable $e) {
-    //     \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-    //     return response()->json([
-    //         'status' => 500,
-    //         'message' => 'An unexpected error occurred.',
-    //         'error' => $e->getMessage()
-    //     ], 500);
-    // }
-}
+    } catch (\PDOException $e) {
+        \Log::error('A PDOException occurred: ' . $e->getMessage());
+        return response()->json([
+            'status' => 500,
+            'message' => 'Database error occurred.',
+            'error' => $e->getMessage()
+        ], 500);
+    } catch (\Exception $e) {
+        \Log::error('An exception occurred: ' . $e->getMessage());
+        return response()->json([
+            'status' => 500,
+            'message' => 'An error occurred while fetching the data.',
+            'error' => $e->getMessage()
+        ], 500);
+    } catch (\Throwable $e) {
+        \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+        return response()->json([
+            'status' => 500,
+            'message' => 'An unexpected error occurred.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}  
+
+
+    public function getFacilitiesSection(Request $request)
+    {
+     try {
+ 
+            $facilites = DB::table('facilites')
+                ->where('status',1)
+                ->orderByDesc('created_at') 
+                ->first();
+
+            if ($facilites !== null) {
+
+                 $facilitesContent = DB::table('facilites_details')
+                     ->where('facilites_id',$facilites->id)
+                    //  ->whereNull('deleted_at')
+                     ->first();
+ 
+                 $facilitesImages = DB::table('facilites_images')
+                     ->where('facilites_id',$facilites->id)
+                    //  ->whereNull('deleted_at')
+                     ->get();
+ 
+             
+                 if ($facilitesContent !== null) {
+                     $facilites->content = $facilitesContent; 
+                 }
+ 
+                 if ($facilitesImages->isNotEmpty()) {
+                    $facilites->images = $facilitesImages;
+                 }
+ 
+ 
+                 return response()->json([
+                     'status' => 200,
+                     'message' => 'Data retrieved successfully!',
+                     'data' => $facilites 
+                 ]);
+
+            } else {
+                return response()->json([
+                    'status' => 503,
+                    'message' => 'Page Coming soon',
+                ]);
+            }
+       
+     } catch (\PDOException $e) {
+         \Log::error('A PDOException occurred: ' . $e->getMessage());
+         return response()->json([
+             'status' => 500,
+             'message' => 'Database error occurred.',
+             'error' => $e->getMessage()
+         ], 500);
+     } catch (\Exception $e) {
+         \Log::error('An exception occurred: ' . $e->getMessage());
+         return response()->json([
+             'status' => 500,
+             'message' => 'An error occurred while fetching the data.',
+             'error' => $e->getMessage()
+         ], 500);
+     } catch (\Throwable $e) {
+         \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+         return response()->json([
+             'status' => 500,
+             'message' => 'An unexpected error occurred.',
+             'error' => $e->getMessage()
+         ], 500);
+     }
+ 
+
+
+
+    }
 
 
 }

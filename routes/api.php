@@ -67,5 +67,6 @@ Route::controller(homeController::class)->group(function () {
 
 
     Route::post('page-data','getMenuPageSection');
+    Route::get('facilities-data','getFacilitiesSection');
 
 });
