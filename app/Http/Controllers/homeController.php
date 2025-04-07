@@ -505,66 +505,54 @@ class homeController extends Controller
     public function getFacilitiesSection(Request $request)
     {
      try {
- 
         $facilites = DB::table('facilites')
         ->where('status', 1)
         ->orderByDesc('created_at')
-        ->first();
-    
-    if ($facilites !== null) {
-        $facilitesContent = DB::table('facilites_details')
-            ->where('facilites_id', $facilites->id)
-            ->get();
-    
-        // Attach images to each content item
-        $facilitesContent = $facilitesContent->map(function ($item) {
-            $item->images = DB::table('facilites_images')
-                ->where('facilites_details_id', $item->id)
-                ->get();
-            return $item;
-        });
-    
-        $facilites->content = $facilitesContent;
-    
-        return response()->json([
-            'status' => 200,
-            'message' => 'Data retrieved successfully!',
-            'data' => $facilites
-        ]);
-    }
-    
-    return response()->json([
-        'status' => 404,
-        'message' => 'No data found!'
-    ]);
-    
-       
-     } catch (\PDOException $e) {
-         \Log::error('A PDOException occurred: ' . $e->getMessage());
-         return response()->json([
-             'status' => 500,
-             'message' => 'Database error occurred.',
-             'error' => $e->getMessage()
-         ], 500);
-     } catch (\Exception $e) {
-         \Log::error('An exception occurred: ' . $e->getMessage());
-         return response()->json([
-             'status' => 500,
-             'message' => 'An error occurred while fetching the data.',
-             'error' => $e->getMessage()
-         ], 500);
-     } catch (\Throwable $e) {
-         \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-         return response()->json([
-             'status' => 500,
-             'message' => 'An unexpected error occurred.',
-             'error' => $e->getMessage()
-         ], 500);
-     }
- 
+        ->get();
+            
+            if (!$facilites->isEmpty()) {
+                foreach ($facilites as $facility) {
+                    $facility->image = DB::table('facilites_images')
+                        ->where('facilites_id', $facility->id)
+                        ->get();
+                }
+            
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Data retrieved successfully!',
+                    'data' => $facilites
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No facilities found.',
+                    'data' => []
+                ]);
+            }
 
-
-
+      
+        } catch (\PDOException $e) {
+            \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) {
+            \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 

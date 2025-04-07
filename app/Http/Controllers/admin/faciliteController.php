@@ -51,8 +51,6 @@ class faciliteController extends Controller
         // try {
             $decryptedData = json_decode(dDecrypt($request->data), true);
 
- 
-
             $validator = Validator::make($decryptedData, [
               // 'name' => 'required',
              
@@ -69,95 +67,53 @@ class faciliteController extends Controller
             $data->description =  $decryptedData['description'];
             $data->status  =  $decryptedData['status'];
             $data->order  = $decryptedData['order'];
-
-            $path = public_path('uploads/facilite');
-            if(!empty($decryptedData['image']) ) {
-               $base64Image = $decryptedData['image'];
-               if($base64Image != null){
-    
-                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                $image = base64_decode($imageData);
-        
-                $finfo = finfo_open();
-                $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                finfo_close($finfo);
-        
-                $extension = '';
-                if ($mimeType == 'image/jpeg') {
-                    $extension = 'jpg';
-                } elseif ($mimeType == 'image/png') {
-                    $extension = 'png';
-                } elseif ($mimeType == 'image/gif') {
-                    $extension = 'gif';
-                } else {
-                    return response()->json(['error' => 'Unsupported image format'], 400);
-                }
-                $newname = time() . rand(10, 99) . '.' . $extension;
-                if (!file_exists($path)) {
-                    mkdir($path, 0777, true);
-                }
-                file_put_contents($path . '/' . $newname, $image);
-                $data->image = $newname;
-               }
-            }
-
             $data->save();
 
-            
+            if(!empty($decryptedData['images'])){
+                foreach ($decryptedData['images'] as $index => $imageMulitpless) {
+                    $imageMulitples = new facilites_image();
+                    $imageMulitples->facilites_title = "image$index";
+                    $imageMulitples->facilites_id = $data->id;
 
-            if($decryptedData['imageContent'] != '' && $decryptedData['imageContent'] != null){
-                foreach ($decryptedData['imageContent'] as $index => $imageContents) {
-                    if ($imageContents) {
-                    $imageContentss = new facilites_detail();
-                    $imageContentss->facilites_title = $imageContents['facilites_title'];
-                    $imageContentss->facilites_description = $imageContents['facilites_description'];
-                    $imageContentss->facilites_id = $data->id;
-                    $imageContentss->save();
-
-                      
-                      foreach ($imageContents['imageMulitple'] as $index => $imageMulitpless) {
-                        $imageMulitples = new facilites_image();
-                        $imageMulitples->facilitesimage_title = "image$index";
-                        $imageMulitples->facilites_details_id = $imageContentss->id;
-
-                        $path = public_path('uploads/facilites');
-                        if(!empty($imageMulitpless) ) {
-                           $base64Image = $imageMulitpless;
-                  
-                           if($base64Image != null){
-               
-                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                            $image = base64_decode($imageData);
-                    
-                            $finfo = finfo_open();
-                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                            finfo_close($finfo);
-                    
-                            $extension = '';
-                            if ($mimeType == 'image/jpeg') {
-                                $extension = 'jpg';
-                            } elseif ($mimeType == 'image/png') {
-                                $extension = 'png';
-                            } elseif ($mimeType == 'image/gif') {
-                                $extension = 'gif';
-                            } else {
-                                return response()->json(['error' => 'Unsupported image format'], 400);
-                            }
-                            $newname = time() . rand(10, 99) . '.' . $extension;
-                            if (!file_exists($path)) {
-                                mkdir($path, 0777, true);
-                            }
-                            file_put_contents($path . '/' . $newname, $image);
-                            $imageMulitples->facilites_image = $newname;
-                           }
+                    $path = public_path('uploads/facilites');
+                    if(!empty($imageMulitpless) ) {
+                       $base64Image = $imageMulitpless;
+              
+                       if($base64Image != null){
+           
+                        $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                        $image = base64_decode($imageData);
+                
+                        $finfo = finfo_open();
+                        $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                        finfo_close($finfo);
+                
+                        $extension = '';
+                        if ($mimeType == 'image/jpeg') {
+                            $extension = 'jpg';
+                        } elseif ($mimeType == 'image/png') {
+                            $extension = 'png';
+                        } elseif ($mimeType == 'image/gif') {
+                            $extension = 'gif';
+                        } else {
+                            return response()->json(['error' => 'Unsupported image format'], 400);
+                        }
+                        $newname = time() . rand(10, 99) . '.' . $extension;
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $newname, $image);
+                        $imageMulitples->facilites_image = $newname;
                        }
-                          
-                        $imageMulitples->save();
+                   }
+                      
+                    $imageMulitples->save();
 
-                      }                 
-                    }
-                }
+                  }      
+
             }
+
+         
 
             return response()->json([
                 'status' => 200,
@@ -251,40 +207,51 @@ class faciliteController extends Controller
                 $data->description =  $decryptedData['description'];
                 $data->status  =  $decryptedData['status'];
                 $data->order  = $decryptedData['order'];
-
-                $path = public_path('uploads/facilite');
-                if(!empty($decryptedData['image']) ) {
-                   $base64Image = $decryptedData['image'];
-                   if($base64Image != null){
-        
-                    $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
-                    $image = base64_decode($imageData);
-            
-                    $finfo = finfo_open();
-                    $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
-                    finfo_close($finfo);
-            
-                    $extension = '';
-                    if ($mimeType == 'image/jpeg') {
-                        $extension = 'jpg';
-                    } elseif ($mimeType == 'image/png') {
-                        $extension = 'png';
-                    } elseif ($mimeType == 'image/gif') {
-                        $extension = 'gif';
-                    } else {
-                        return response()->json(['error' => 'Unsupported image format'], 400);
-                    }
-                    $newname = time() . rand(10, 99) . '.' . $extension;
-                    if (!file_exists($path)) {
-                        mkdir($path, 0777, true);
-                    }
-                    file_put_contents($path . '/' . $newname, $image);
-                    $data->image = $newname;
-                   }
-                }
-    
                 $data->save();
-            
+    
+                if(!empty($decryptedData['images'])){
+                    foreach ($decryptedData['images'] as $index => $imageMulitpless) {
+                        $imageMulitples = new facilites_image();
+                        $imageMulitples->facilites_title = "image$index";
+                        $imageMulitples->facilites_id = $data->id;
+    
+                        $path = public_path('uploads/facilites');
+                        if(!empty($imageMulitpless) ) {
+                           $base64Image = $imageMulitpless;
+                  
+                           if($base64Image != null){
+               
+                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                            $image = base64_decode($imageData);
+                    
+                            $finfo = finfo_open();
+                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                            finfo_close($finfo);
+                    
+                            $extension = '';
+                            if ($mimeType == 'image/jpeg') {
+                                $extension = 'jpg';
+                            } elseif ($mimeType == 'image/png') {
+                                $extension = 'png';
+                            } elseif ($mimeType == 'image/gif') {
+                                $extension = 'gif';
+                            } else {
+                                return response()->json(['error' => 'Unsupported image format'], 400);
+                            }
+                            $newname = time() . rand(10, 99) . '.' . $extension;
+                            if (!file_exists($path)) {
+                                mkdir($path, 0777, true);
+                            }
+                            file_put_contents($path . '/' . $newname, $image);
+                            $imageMulitples->facilites_image = $newname;
+                           }
+                       }
+                          
+                        $imageMulitples->save();
+    
+                      }      
+    
+                }
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Update Successfully!',
