@@ -294,6 +294,12 @@ class homeController extends Controller
             ->orderBy('order', 'desc')
             ->whereNull('deleted_at')
             ->get();
+
+            // $orgMembers = DB::table('org_members')
+            // ->where('status', 1)
+            // ->orderBy('order', 'desc')
+            // ->whereNull('deleted_at')
+            // ->get();
         
             $student = dEncrypt($studentData);
         
