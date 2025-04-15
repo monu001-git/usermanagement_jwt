@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\event;
 use App\Models\event_image;
+use App\Models\event_video;
 use DB;
 use Hash;
 use Str;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
+
 
 class eventGalleryController extends Controller
 {
@@ -80,6 +82,7 @@ class eventGalleryController extends Controller
             $data->order  = $decryptedData['order'];
             $data->save();
 
+            //image section
             if(!empty($decryptedData['images'])){
                   
                 foreach ($decryptedData['images'] as $index => $imageContents) {
@@ -124,6 +127,51 @@ class eventGalleryController extends Controller
 
             }
 
+            //video section
+            if($decryptedData['imageContent'] != ''){
+            foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+                if ($imageContents) {
+                $imageContentss = new event_video();
+                $imageContentss->image_name	 =  "image$index";
+                $imageContentss->url = $imageContents['url'];;
+
+                $path = public_path('uploads/event');
+                if(!empty($imageContents['image_path']) ) {
+                    $base64Image = $imageContents['image_path'];
+                    if($base64Image != null){
+        
+                    $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                    $image = base64_decode($imageData);
+            
+                    $finfo = finfo_open();
+                    $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                    finfo_close($finfo);
+            
+                    $extension = '';
+                    if ($mimeType == 'image/jpeg') {
+                        $extension = 'jpg';
+                    } elseif ($mimeType == 'image/png') {
+                        $extension = 'png';
+                    } elseif ($mimeType == 'image/gif') {
+                        $extension = 'gif';
+                    } else {
+                        return response()->json(['error' => 'Unsupported image format'], 400);
+                    }
+                    $newname = time() . rand(10, 99) . '.' . $extension;
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    file_put_contents($path . '/' . $newname, $image);
+                    $imageContentss->image_path = $newname;
+                    }
+                }
+
+                $imageContentss->event_id = $data->id;
+                $imageContentss->save();
+                }
+            }
+            }
+
             DB::commit(); 
     
             return response()->json([
@@ -164,15 +212,22 @@ class eventGalleryController extends Controller
                     ->where('event_id', $eventData->id)
                     ->whereNull('deleted_at')
                     ->get();
+
+                    $eventVideo = DB::table('event_videos')
+                    ->where('event_id', $eventData->id)
+                    ->whereNull('deleted_at')
+                    ->get();
                
                 $eventComplete = [
                     'eventData' => $eventData,
                     'eventImages' => $eventImages,
+                    'eventVideo'=>$eventVideo
                 ];
             } else {
                 $eventComplete = [
                     'eventData' => null,
                     'eventImages' => [],
+                    'eventVideo'=>[]
                 ];
             }
 
@@ -238,6 +293,7 @@ class eventGalleryController extends Controller
                 $data->order  = $decryptedData['order'];
                 $data->save();
            
+                //image section
                 if(!empty($decryptedData['images'])){
                   
                     foreach ($decryptedData['images'] as $index => $imageContents) {
@@ -282,6 +338,61 @@ class eventGalleryController extends Controller
 
                 }
     
+                //video section
+                if($decryptedData['imageContent'] != ''){
+                    foreach ($decryptedData['imageContent'] as $index => $imageContents) {
+                        if ($imageContents['videoId']) {
+                            $imageContentss = event_video::find($imageContents['videoId']);
+                        } else {
+                            $imageContentss = new event_video();
+                        }
+                
+                        $imageContentss->image_name	 =  "image$index";
+                        $imageContentss->url = $imageContents['url'];;
+        
+                        $path = public_path('uploads/event');
+                        if(!empty($imageContents['image_path']) ) {
+                            $base64Image = $imageContents['image_path'];
+                            if($base64Image != null){
+                
+                            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                            $image = base64_decode($imageData);
+                    
+                            $finfo = finfo_open();
+                            $mimeType = finfo_buffer($finfo, $image, FILEINFO_MIME_TYPE);
+                            finfo_close($finfo);
+                    
+                            $extension = '';
+                            if ($mimeType == 'image/jpeg') {
+                                $extension = 'jpg';
+                            } elseif ($mimeType == 'image/png') {
+                                $extension = 'png';
+                            } elseif ($mimeType == 'image/gif') {
+                                $extension = 'gif';
+                            } else {
+                                return response()->json(['error' => 'Unsupported image format'], 400);
+                            }
+                            $newname = time() . rand(10, 99) . '.' . $extension;
+                            if (!file_exists($path)) {
+                                mkdir($path, 0777, true);
+                            }
+                            file_put_contents($path . '/' . $newname, $image);
+                            $imageContentss->image_path = $newname;
+                            }
+                        }
+        
+                        $imageContentss->event_id = $data->id;
+                        $imageContentss->save();
+                    }
+                }else{
+                    $image = event_video::where('event_id', $id)->get();
+                    if ($image->isNotEmpty()) {
+                        foreach ($image as $img) {
+                            $img->delete();
+                        }
+                    }
+                }
+
                 DB::commit(); 
   
                 return response()->json([

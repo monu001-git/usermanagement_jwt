@@ -191,12 +191,28 @@ class homeController extends Controller
 
         try{
 
-            $eventData = DB::table('events')
-            ->whereNull('deleted_at')
-            ->where('status', 1)
-            ->orderBy('order', 'desc')
-            ->first();
-        
+            $decryptedData = json_decode(dDecrypt($request->data), true);
+
+            if($decryptedData != 0){
+
+                $eventData = DB::table('events')
+                ->where('id', $decryptedData)
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderByDesc('order')
+                ->first();
+
+            }else{
+
+                $eventData = DB::table('events')
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderBy('order', 'desc')
+                ->first();
+                
+            }
+
+       
            $albumCount = DB::table('events')->whereNull('deleted_at')->count();
            $totalImageCount = DB::table('event_images')->whereNull('deleted_at')->count();
         
@@ -580,7 +596,7 @@ class homeController extends Controller
             $eventData = DB::table('events')
                 ->whereNull('deleted_at')
                 ->where('status', 1)
-                ->orderBy('order', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->first();
 
             if ($eventData != null) {
@@ -601,7 +617,7 @@ class homeController extends Controller
             $allEvents = DB::table('events')
                 ->whereNull('deleted_at')
                 ->where('status', 1)
-                ->orderBy('order', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             foreach ($allEvents as $event) {
