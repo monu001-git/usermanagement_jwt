@@ -187,32 +187,42 @@ class homeController extends Controller
     }
 
 
-    public function eventGallerySection(){
-         try{
+    public function eventGallerySection(Request $request){
 
-            $eventData = DB::table('events')->whereNull('deleted_at')->orderBy('order', 'desc')->where('status', 1)->first();
+        try{
 
-            if ($eventData != null) {
+            $eventData = DB::table('events')
+            ->whereNull('deleted_at')
+            ->where('status', 1)
+            ->orderBy('order', 'desc')
+            ->first();
+        
+           $albumCount = DB::table('events')->whereNull('deleted_at')->count();
+           $totalImageCount = DB::table('event_images')->whereNull('deleted_at')->count();
+        
+            $eventImage = [];
+            
+            if ($eventData) {
                 $eventImage = DB::table('event_images')
                     ->where('event_id', $eventData->id)
                     ->whereNull('deleted_at')
                     ->get();
-            
-                $eventGallery = [
-                    'eventData' => $eventData,
-                    'eventImage' => $eventImage,
-                ];
-            } else {
-                // Properly assign null and empty array
-                $eventData = null;
-                $eventImage = [];
-            
-                $eventGallery = [
-                    'eventData' => $eventData,
-                    'eventImage' => $eventImage,
-                ];
+
+                $imageCount = DB::table('event_images')
+                   ->whereNull('deleted_at')
+                   ->where('event_id', $eventData->id)
+                   ->count();
+
             }
             
+            $eventGallery = [
+                'eventData' => $eventData,
+                'eventImage' => $eventImage,
+                'albumCount' => $albumCount,
+                'imageCount'=>$imageCount,
+                'totalImageCount'=>$totalImageCount
+            ];
+        
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Get Successfully!!!!!!',
@@ -220,7 +230,7 @@ class homeController extends Controller
             ]);
             
 
-         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
                 'status' => 500,
                 'message' => 'Database error occurred.',
@@ -513,7 +523,7 @@ class homeController extends Controller
      try {
         $facilites = DB::table('facilites')
         ->where('status', 1)
-        ->orderByDesc('created_at')
+        ->orderBy('created_at', 'desc')
         ->get();
             
             if (!$facilites->isEmpty()) {
@@ -559,6 +569,85 @@ class homeController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+
+    public function eventAlbumSection(){
+     
+        try{
+
+            // 1. Get the featured event (latest by 'order') with all its images
+            $eventData = DB::table('events')
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderBy('order', 'desc')
+                ->first();
+
+            if ($eventData != null) {
+            $eventImages = DB::table('event_images')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->get();
+
+            $featuredEventArray = [
+                'event' => $eventData,
+                'images' => $eventImages
+            ];
+            } else {
+            $featuredEventArray = null;
+            }
+
+            // 2. Get all events with only the first image
+            $allEvents = DB::table('events')
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderBy('order', 'desc')
+                ->get();
+
+            foreach ($allEvents as $event) {
+            $firstImage = DB::table('event_images')
+                ->where('event_id', $event->id)
+                ->whereNull('deleted_at')
+                ->orderBy('id', 'asc')
+                ->first();
+
+            $event->image = $firstImage;
+            }
+
+            // 3. Return both in JSON
+            return response()->json([
+            'status' => 200,
+            'message' => 'Data Get Successfully!',
+            'data' => [
+                'featuredEvent' => $featuredEventArray,
+                'eventList' => $allEvents
+            ]
+            ]);
+
+
+        } catch (\PDOException $e) {
+            \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) {
+            \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
     }
 
 
