@@ -108,6 +108,12 @@ class pageController extends Controller
                 $data->banner = $newname;
                }
             }
+
+            //Facility section
+            if($decryptedData['facilitySwitch'] != '' && $decryptedData['facilitySwitch'] != null){
+              $data->facilitySwitch  = $decryptedData['facilitySwitch']; 
+            }
+
             $data->save();
 
             //image content
@@ -194,6 +200,7 @@ class pageController extends Controller
                 }
             }
 
+          
             DB::commit();
 
             return response()->json([
@@ -310,6 +317,13 @@ class pageController extends Controller
             $data->meta_keyword = $decryptedData['meta_keyword'];
             $data->status  = $decryptedData['status'];
             $data->order  =  $decryptedData['order'];
+
+             //Facility section
+            if($decryptedData['facilitySwitch'] != '' && $decryptedData['facilitySwitch'] != null){
+                $data->facilitySwitch  = $decryptedData['facilitySwitch']; 
+            }else{
+                $data->facilitySwitch  = 0; 
+            }
 
             $path = public_path('uploads/page');
             if(!empty($decryptedData['banner']) ) {

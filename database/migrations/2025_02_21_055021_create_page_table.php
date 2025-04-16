@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('banner',255)->nullable();
             $table->integer('order')->nullable()->default(0);
             $table->boolean('status')->default(0)->nullable();
+            $table->boolean('facilitySwitch')->default(0)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

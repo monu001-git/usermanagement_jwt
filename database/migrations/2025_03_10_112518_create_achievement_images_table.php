@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('achievement_images', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('achievement_id');
-            $table->string('image_path',255); 
-            $table->string('image_title',255); 
+            $table->string('image_path',255)->nullable();
+            $table->string('image_title',255)->nullable();
             $table->foreign('achievement_id')->references('id')->on('achievements')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
