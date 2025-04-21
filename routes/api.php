@@ -35,7 +35,12 @@ use App\http\Middleware\logMiddleware;
         Route::resource('orgs',orgStructureController::class);
         Route::resource('pages',pageController::class);
         Route::resource('members',orgMemberController::class);
-        Route::resource('event',eventGalleryController::class);
+        
+         Route::resource('event',eventGalleryController::class);
+         Route::delete('event-image-delete/{id?}',[eventGalleryController::class,'event_imageDelete']);
+         Route::delete('event-video-delete/{id?}',[eventGalleryController::class,'event_videoDelete']);
+
+        
         Route::resource('students',studentController::class);
         Route::resource('notice-boards',noticeBoardController::class);
         Route::resource('achievement',achivementController::class);

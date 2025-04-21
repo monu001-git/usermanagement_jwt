@@ -247,14 +247,12 @@ class pageController extends Controller
                     ->whereNull('deleted_at')
                     ->get();
 
-                // Prepare the pageComplete array with data
                 $pageComplete = [
                     'pageData' => $pageData,
                     'pageContent' => $pageContent,
                     'pageImage' => $pageImage,
                 ];
             } else {
-                // Prepare an empty pageComplete structure with empty data instead of just an empty array
                 $pageComplete = [
                     'pageData' => null,
                     'pageContent' => null,
@@ -266,7 +264,7 @@ class pageController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'success', 'Page Show Successfully',
+                'success'=> 'Page Show Successfully',
                 'data' => $page
             ]);
          

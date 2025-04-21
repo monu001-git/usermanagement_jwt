@@ -191,60 +191,69 @@ class homeController extends Controller
 
         try{
 
-            $decryptedData = json_decode(dDecrypt($request->data), true);
 
-            if($decryptedData != 0){
+        $decryptedData = json_decode($request->data, true);
 
-                $eventData = DB::table('events')
+        $eventData = null;
+        $eventImage = [];
+        $imageCount = 0;
+    
+        if (!empty($decryptedData)) {
+            // Get event by ID
+            $eventData = DB::table('events')
                 ->where('id', $decryptedData)
                 ->whereNull('deleted_at')
                 ->where('status', 1)
-                ->orderByDesc('order')
+                ->orderByDesc('created_at')
                 ->first();
-
-            }else{
-
-                $eventData = DB::table('events')
+        } else {
+            // Get the latest active event
+            $eventData = DB::table('events')
                 ->whereNull('deleted_at')
                 ->where('status', 1)
-                ->orderBy('order', 'desc')
+                ->orderByDesc('created_at')
                 ->first();
-                
-            }
+        }
+    
+        $albumCount = DB::table('events')
+            ->whereNull('deleted_at')
+            ->count();
 
-       
-           $albumCount = DB::table('events')->whereNull('deleted_at')->count();
-           $totalImageCount = DB::table('event_images')->whereNull('deleted_at')->count();
-        
-            $eventImage = [];
-            
-            if ($eventData) {
-                $eventImage = DB::table('event_images')
-                    ->where('event_id', $eventData->id)
-                    ->whereNull('deleted_at')
-                    ->get();
+        $totalImageCount = DB::table('event_images')
+            ->whereNull('deleted_at')
+            ->count();
 
-                $imageCount = DB::table('event_images')
-                   ->whereNull('deleted_at')
-                   ->where('event_id', $eventData->id)
-                   ->count();
-
-            }
-            
-            $eventGallery = [
-                'eventData' => $eventData,
-                'eventImage' => $eventImage,
-                'albumCount' => $albumCount,
-                'imageCount'=>$imageCount,
-                'totalImageCount'=>$totalImageCount
-            ];
-        
-            return response()->json([
-                'status' => 200,
-                'message' => 'Data Get Successfully!!!!!!',
-                'data' => $eventGallery 
-            ]);
-            
+        $videoCount = DB::table('event_videos')
+            ->whereNull('deleted_at')
+            ->count();    
+    
+        if ($eventData) {
+            $eventImage = DB::table('event_images')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->get();
+    
+            $imageCount = DB::table('event_images')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->count();
+        }
+    
+        $eventGallery = [
+            'eventData' => $eventData,
+            'eventImage' => $eventImage,
+            'albumCount' => $albumCount,
+            'imageCount' => $imageCount,
+            'totalImageCount' => $totalImageCount,
+            'videoCount'=>$videoCount
+        ];
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Data retrieved successfully!',
+            'data' => $eventGallery
+        ]);
+    
 
         } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
             return response()->json([
@@ -592,51 +601,106 @@ class homeController extends Controller
      
         try{
 
-            // 1. Get the featured event (latest by 'order') with all its images
             $eventData = DB::table('events')
                 ->whereNull('deleted_at')
                 ->where('status', 1)
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            if ($eventData != null) {
-            $eventImages = DB::table('event_images')
-                ->where('event_id', $eventData->id)
+            $eventCount = DB::table('events')
                 ->whereNull('deleted_at')
-                ->get();
+                ->count();
 
-            $featuredEventArray = [
-                'event' => $eventData,
-                'images' => $eventImages
-            ];
+            $eventVideoCount = DB::table('event_videos')
+                ->whereNull('deleted_at')
+                ->count();    
+
+            $eventImagesCount = DB::table('event_images')
+                ->whereNull('deleted_at')
+                ->count();
+            
+
+            if ($eventData != null) {
+                $eventWiseImages = DB::table('event_images')
+                    ->where('event_id', $eventData->id)
+                    ->whereNull('deleted_at')
+                    ->get();
+
+                $eventWiseVideos = DB::table('event_videos')
+                    ->where('event_id', $eventData->id)
+                    ->whereNull('deleted_at')
+                    ->get();   
+
+                $imageCount = DB::table('event_images')
+                    ->where('event_id', $eventData->id)
+                    ->whereNull('deleted_at')
+                    ->count();    
+
+                $videoCount = DB::table('event_videos')
+                    ->where('event_id', $eventData->id)
+                    ->whereNull('deleted_at')
+                    ->count();
+
+
+                $featuredEventArray = [
+                    'eventData'=>$eventData,
+                    'eventWiseImages' => $eventWiseImages,
+                    'eventWiseVideos' => $eventWiseVideos,
+                    'imageCount'=>$imageCount,
+                    'videoCount'=>$videoCount
+    
+                ];
             } else {
-            $featuredEventArray = null;
+
+              $featuredEventArray = null;
+
             }
 
-            // 2. Get all events with only the first image
+         
             $allEvents = DB::table('events')
-                ->whereNull('deleted_at')
-                ->where('status', 1)
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            foreach ($allEvents as $event) {
+            ->whereNull('deleted_at')
+            ->where('status', 1)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        foreach ($allEvents as $event) {
+        
+            // Get the first image
             $firstImage = DB::table('event_images')
                 ->where('event_id', $event->id)
                 ->whereNull('deleted_at')
                 ->orderBy('id', 'asc')
                 ->first();
-
+        
+            // Count images for the current event
+            $imageCount = DB::table('event_images')
+                ->where('event_id', $event->id)
+                ->whereNull('deleted_at')
+                ->count();
+        
+            // Count videos for the current event
+            $videoCount = DB::table('event_videos')
+                ->where('event_id', $event->id)
+                ->whereNull('deleted_at')
+                ->count();
+        
+            // Attach data to the event
             $event->image = $firstImage;
-            }
+            $event->image_count = $imageCount;
+            $event->video_count = $videoCount;
+        }
+        
 
-            // 3. Return both in JSON
+        
             return response()->json([
             'status' => 200,
             'message' => 'Data Get Successfully!',
             'data' => [
                 'featuredEvent' => $featuredEventArray,
-                'eventList' => $allEvents
+                'eventList' => $allEvents,
+                'eventCount'=>$eventCount,
+                'eventVideoCount'=>$eventVideoCount,
+                'eventImagesCount'=>$eventImagesCount,
             ]
             ]);
 

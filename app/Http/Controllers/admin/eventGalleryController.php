@@ -473,4 +473,86 @@ class eventGalleryController extends Controller
         }
             
     }
+
+     public function event_imageDelete($id){
+
+        try {
+        
+            $event = event_image::where('id',$id)->first();
+            if (!empty($event)) {
+                event_image::find($id)->delete();
+            } else {
+               return response()->json([
+                'message' => 'You are trying to perform an unethical process. Your request is failed.',
+                'status' => false,
+               ], 400); 
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Delete Successfully!',
+            ]);
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+     }
+
+     public function event_videoDelete($id){
+        
+        try {
+        
+            $event = event_video::where('id',$id)->first();
+            if (!empty($event)) {
+                event_video::find($id)->delete();
+            } else {
+               return response()->json([
+                'message' => 'You are trying to perform an unethical process. Your request is failed.',
+                'status' => false,
+               ], 400); 
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data Delete Successfully!',
+            ]);
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+     }
+
+
 }
