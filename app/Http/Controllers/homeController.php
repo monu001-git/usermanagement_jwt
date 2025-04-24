@@ -187,96 +187,6 @@ class homeController extends Controller
     }
 
 
-    public function eventGallerySection(Request $request){
-
-        try{
-
-
-        $decryptedData = json_decode($request->data, true);
-
-        $eventData = null;
-        $eventImage = [];
-        $imageCount = 0;
-    
-        if (!empty($decryptedData)) {
-            // Get event by ID
-            $eventData = DB::table('events')
-                ->where('id', $decryptedData)
-                ->whereNull('deleted_at')
-                ->where('status', 1)
-                ->orderByDesc('created_at')
-                ->first();
-        } else {
-            // Get the latest active event
-            $eventData = DB::table('events')
-                ->whereNull('deleted_at')
-                ->where('status', 1)
-                ->orderByDesc('created_at')
-                ->first();
-        }
-    
-        $albumCount = DB::table('events')
-            ->whereNull('deleted_at')
-            ->count();
-
-        $totalImageCount = DB::table('event_images')
-            ->whereNull('deleted_at')
-            ->count();
-
-        $videoCount = DB::table('event_videos')
-            ->whereNull('deleted_at')
-            ->count();    
-    
-        if ($eventData) {
-            $eventImage = DB::table('event_images')
-                ->where('event_id', $eventData->id)
-                ->whereNull('deleted_at')
-                ->get();
-    
-            $imageCount = DB::table('event_images')
-                ->where('event_id', $eventData->id)
-                ->whereNull('deleted_at')
-                ->count();
-        }
-    
-        $eventGallery = [
-            'eventData' => $eventData,
-            'eventImage' => $eventImage,
-            'albumCount' => $albumCount,
-            'imageCount' => $imageCount,
-            'totalImageCount' => $totalImageCount,
-            'videoCount'=>$videoCount
-        ];
-    
-        return response()->json([
-            'status' => 200,
-            'message' => 'Data retrieved successfully!',
-            'data' => $eventGallery
-        ]);
-    
-
-        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'Database error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An error occurred while fetching the data.',
-                'error' => $e->getMessage()
-            ], 500);
-        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'status' => 500,
-                'message' => 'An unexpected error occurred.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-    }
-
 
     public function testimonialSection(){
          
@@ -729,6 +639,104 @@ class homeController extends Controller
         }
 
     }
+
+
+       public function eventGallerySection(Request $request){
+
+        try{
+
+
+        $decryptedData = json_decode($request->data, true);
+
+        $eventData = null;
+        $eventImage = [];
+        $imageCount = 0;
+    
+        if (!empty($decryptedData)) {
+            // Get event by ID
+            $eventData = DB::table('events')
+                ->where('id', $decryptedData)
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderByDesc('created_at')
+                ->first();
+        } else {
+            // Get the latest active event
+            $eventData = DB::table('events')
+                ->whereNull('deleted_at')
+                ->where('status', 1)
+                ->orderByDesc('created_at')
+                ->first();
+        }
+    
+        $albumCount = DB::table('events')
+            ->whereNull('deleted_at')
+            ->count();
+
+        $totalImageCount = DB::table('event_images')
+            ->whereNull('deleted_at')
+            ->count();
+
+        $totalVideoCount = DB::table('event_videos')
+            ->whereNull('deleted_at')
+            ->count();    
+    
+        if ($eventData) {
+            $eventImage = DB::table('event_images')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->get();
+    
+            $imageCount = DB::table('event_images')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->count();
+
+            $videoCount = DB::table('event_videos')
+                ->where('event_id', $eventData->id)
+                ->whereNull('deleted_at')
+                ->count();    
+        }
+    
+        $eventGallery = [
+            'eventData' => $eventData,
+            'eventImage' => $eventImage,
+            'albumCount' => $albumCount,
+            'imageCount' => $imageCount,
+            'videoCount' => $videoCount,
+            'totalImageCount' => $totalImageCount,
+            'totalVideoCount'=>$totalVideoCount
+        ];
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Data retrieved successfully!',
+            'data' => $eventGallery
+        ]);
+    
+
+        } catch (\PDOException $e) { \Log::error('A PDOException occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'Database error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) { \Log::error('An exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while fetching the data.',
+                'error' => $e->getMessage()
+            ], 500);
+        } catch (\Throwable $e) { \Log::error('An unexpected exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+    }
+
 
 
 }
